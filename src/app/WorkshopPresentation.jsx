@@ -28,6 +28,16 @@ const PINK = "#C586C0";
 
 const slides = [
   {
+    id: "Welcome",
+    folder: "workshop",
+    title: "Welcome",
+    icon: "md",
+    content: {
+      type: "welcome",
+      lines: [],
+    },
+  },
+  {
     id: "00_intro.md",
     folder: "workshop",
     title: "Intro",
@@ -43,10 +53,11 @@ const slides = [
         { type: "line", text: "---" },
         { type: "blank", text: "" },
         { type: "bullet", text: "- Uscire dallo stallo della documentazione obsoleta" },
+        { type: "bullet", text: "- Costruire un flusso replicabile su qualsiasi stack" },
         { type: "bullet", text: "- Nessuna burocrazia aggiuntiva" },
         { type: "bullet", text: "- Massima resa, minimo sforzo" },
         { type: "blank", text: "" },
-        { type: "comment", text: "<!-- 3 settimane · 3-4 ore · zero sovrastrutture -->" },
+        { type: "comment", text: "<!-- Non stiamo aggiungendo processo. Stiamo togliendo entropia. -->" },
       ],
     },
   },
@@ -60,14 +71,18 @@ const slides = [
       lines: [
         { type: "heading1", text: "# Il debito più democratico" },
         { type: "blank", text: "" },
-        { type: "text", text: "Il codice corre per il business." },
-        { type: "bold", text: "**La documentazione resta ferma.**" },
+        { type: "text", text: "Colpisce tutti, senza eccezioni:" },
+        { type: "bullet", text: "- dal **monolite Django** che ci trasciniamo da due anni" },
+        { type: "bullet", text: "- alle architetture **Nuxt o Astro** che sembravano pulitissime al primo commit" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Il codice corre per soddisfare il business." },
+        { type: "bold", text: "**La documentazione resta ferma per mancanza di tempo.**" },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
         { type: "blank", text: "" },
         { type: "text", text: "Dopo due sprint, il README è obsoleto." },
         { type: "text", text: "Un documento obsoleto non è inutile:" },
-        { type: "bold", text: "**è pericoloso.**" },
-        { type: "blank", text: "" },
-        { type: "line", text: "---" },
+        { type: "bold", text: "**è pericoloso, perché induce in errore chiunque ci metta mano.**" },
         { type: "blank", text: "" },
         { type: "text", text: "Ruotano i team, cambiano i PM:" },
         { type: "italic", text: "_la codebase diventa una lingua dimenticata._" },
@@ -84,18 +99,19 @@ const slides = [
       lines: [
         { type: "heading1", text: "# Le regole del gioco" },
         { type: "blank", text: "" },
-        { type: "text", text: "Non partiremo da risposte." },
-        { type: "blank", text: "" },
-        { type: "bullet", text: "- **4 domande** fondamentali da sciogliere" },
-        { type: "bullet", text: "- Testando **codice e automazione**" },
+        { type: "text", text: "Non partiremo da risposte preconfezionate." },
+        { type: "text", text: "Partiamo da **4 domande** da sciogliere testando codice e automazione." },
         { type: "blank", text: "" },
         { type: "heading2", text: "## 1 regola aurea:" },
         { type: "quote", text: "> L'automazione deve richiedere il minimo intervento possibile." },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "bold", text: "**Stiamo risolvendo il problema o stiamo solo creando**" },
-        { type: "bold", text: "**un nuovo sistema impossibile da mantenere?**" },
+        { type: "text", text: "Se aggiungiamo un sistema che nessuno manterrà," },
+        { type: "italic", text: "_stiamo solo spostando il problema:_" },
+        { type: "text", text: "\"nessuno scrive la doc\" → \"nessuno mantiene il sistema che la genera\"." },
+        { type: "blank", text: "" },
+        { type: "bold", text: "**Stiamo risolvendo il problema o creando un nuovo debito?**" },
       ],
     },
   },
@@ -109,20 +125,22 @@ const slides = [
       lines: [
         { type: "heading1", text: "# Domanda 1: Per chi documentiamo?" },
         { type: "blank", text: "" },
-        { type: "text", text: "Tre destinatari in tensione tra loro:" },
+        { type: "text", text: "Tre destinatari con esigenze in tensione tra loro:" },
         { type: "blank", text: "" },
         { type: "heading3", text: "### 🤖 Agenti AI" },
         { type: "text", text: "AGENTS.md per non generare allucinazioni sui pattern custom." },
+        { type: "text", text: "Un LLM senza contesto ci suggerirà errori camuffati da soluzioni." },
         { type: "blank", text: "" },
         { type: "heading3", text: "### 👥 Colleghi" },
-        { type: "text", text: "Abbattere il Bus Factor. Stop reverse engineering." },
+        { type: "text", text: "Abbattere il Bus Factor. Stop al reverse engineering da zero." },
+        { type: "text", text: "Permettere cambi di progetto indolori, senza settimane di ramp-up." },
         { type: "blank", text: "" },
         { type: "heading3", text: "### 📊 PM ed Esterni" },
-        { type: "text", text: "Decisioni di business leggibili." },
+        { type: "text", text: "Architettura tecnica leggibile per prendere decisioni di business." },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
-        { type: "italic", text: "_Possiamo accontentarli tutti con un solo formato?_" },
-        { type: "bold", text: "**O l'AI è diventata la nostra vera priorità?**" },
+        { type: "italic", text: "_Un file AGENTS.md per un LLM è radicalmente diverso da una doc per un PM._" },
+        { type: "bold", text: "**Quale destinatario ha la priorità reale?**" },
       ],
     },
   },
@@ -136,16 +154,16 @@ const slides = [
       lines: [
         { type: "heading1", text: "# Domanda 2: Quanto cambiamo il codice?" },
         { type: "blank", text: "" },
-        { type: "text", text: "L'automazione richiede standard." },
+        { type: "text", text: "L'automazione richiede standard. Ma a che prezzo?" },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- Type Hinting rigoroso per un sito vetrina di 3 mesi?" },
-        { type: "bullet", text: "- Codice \"veloce\" vs Codice \"strutturato\"" },
-        { type: "bullet", text: "- Chi decide l'equilibrio tra pragmatismo e rigore?" },
+        { type: "bullet", text: "- Ha senso imporre **Type Hinting rigoroso** su un micro-progetto di 3 mesi?" },
+        { type: "bullet", text: "- Qual è il costo reale di codice **\"veloce\"** vs codice **\"parser-friendly\"**?" },
+        { type: "bullet", text: "- Chi paga quel debito? E quando lo scopre?" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "quote", text: "> Se alla fine del workshop non abbiamo almeno" },
-        { type: "quote", text: "> una regola minima e concreta," },
+        { type: "quote", text: "> Se non troviamo un punto di equilibrio" },
+        { type: "quote", text: "> tra pragmatismo e rigore," },
         { type: "quote", text: "> torneremo al punto di partenza." },
         { type: "blank", text: "" },
         { type: "comment", text: "<!-- I workshop che finiscono con 'ognuno decida per sé' non cambiano nulla. -->" },
@@ -164,16 +182,19 @@ const slides = [
         { type: "blank", text: "" },
         { type: "heading2", text: "## Per chi commentiamo?" },
         { type: "blank", text: "" },
-        { type: "text", text: "JSDoc per il tooltip dell'IDE" },
-        { type: "text", text: "o per l'LLM che analizza la git diff?" },
-        { type: "italic", text: "_Esiste un formato unico?_" },
+        { type: "text", text: "Scriviamo JSDoc per il tooltip dell'IDE" },
+        { type: "text", text: "o per istruire l'LLM che analizza la git diff?" },
+        { type: "text", text: "Quando la risposta cambia, cambia il formato." },
+        { type: "italic", text: "_Esiste un unico commento che soddisfi entrambe le esigenze?_" },
         { type: "blank", text: "" },
         { type: "heading2", text: "## Dove vive la verità?" },
         { type: "blank", text: "" },
-        { type: "text", text: "File `.md` nella repo o entità esterna?" },
+        { type: "text", text: "File `.md` nella repo — versionata col codice — o entità esterna?" },
+        { type: "text", text: "La documentazione deve stare dentro la repo per essere" },
+        { type: "text", text: "sincronizzata a ogni push, o ha più senso separarla?" },
         { type: "blank", text: "" },
-        { type: "bold", text: "**Come garantiamo che la doc resti sincronizzata**" },
-        { type: "bold", text: "**al 100% con ogni push su GitLab?**" },
+        { type: "bold", text: "**Come garantiamo che la doc resti allineata al 100%**" },
+        { type: "bold", text: "**con ogni push su GitLab?**" },
       ],
     },
   },
@@ -187,25 +208,28 @@ const slides = [
       language: "python",
       lines: [
         { tokens: [{ text: "# L'AI legge la diff, ma non il contesto.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# La diff cattura il COSA. Non cattura mai il PERCHÉ.", color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "class", color: BLUE }, { text: " DiffAnalysis", color: CYAN }, { text: ":", color: WHITE }] },
         { tokens: [{ text: '    """', color: ORANGE }] },
         { tokens: [{ text: "    La diff dice COSA è cambiato.", color: ORANGE }] },
         { tokens: [{ text: "    Non dice mai PERCHÉ.", color: ORANGE }] },
+        { tokens: [{ text: "    Il contesto è nella testa del dev — e non ci resta a lungo.", color: ORANGE }] },
         { tokens: [{ text: '    """', color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "    ", color: WHITE }, { text: "# Backend: spostata validazione nel middleware", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    ", color: WHITE }, { text: "# Backend: spostata validazione dal serializer al middleware custom", color: COMMENT_COLOR }] },
         { tokens: [{ text: "    what_changed", color: LIGHT_BLUE }, { text: " = ", color: WHITE }, { text: '"validation → middleware"', color: ORANGE }] },
-        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Performance? Bug? Cliente?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Performance? Bug? Richiesta cliente?", color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "    ", color: WHITE }, { text: "# Frontend: tolto Pinia, usato useState", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "    what_changed", color: LIGHT_BLUE }, { text: " = ", color: WHITE }, { text: '"pinia → useState composable"', color: ORANGE }] },
-        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Idratazione SSR? Bundle size?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    ", color: WHITE }, { text: "# Frontend: rimosso Pinia, usato composable nativo + caching custom", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    what_changed", color: LIGHT_BLUE }, { text: " = ", color: WHITE }, { text: '"pinia → composable nativo"', color: ORANGE }] },
+        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Bug SSR? Bundle size? Preferenza personale?", color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [] },
-        { tokens: [{ text: "# Se la doc non spiega il PERCHÉ,", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "# tra 6 mesi qualcuno reintrodurrà Pinia", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "# e romperà tutto di nuovo.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# Tra 6 mesi qualcuno reintrodurrà Pinia,", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# convinto di 'migliorare' il codice.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# Romperà tutto di nuovo. La diff non lo fermerà.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# Solo il 'perché' documentato nel momento giusto può farlo.", color: COMMENT_COLOR }] },
       ],
     },
   },
@@ -219,23 +243,25 @@ const slides = [
       language: "typescript",
       lines: [
         { tokens: [{ text: "// L'umano nel loop — senza impazzire", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// La soluzione si aggancia a quello che il dev fa già.", color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "interface", color: BLUE }, { text: " MergeRequestTemplate", color: CYAN }, { text: " {", color: WHITE }] },
         { tokens: [] },
-        { tokens: [{ text: "  ", color: WHITE }, { text: "// Pre-compilato dall'AI dalla diff", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  cosa_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: "  // ✅ 10 sec conferma", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Pre-compilato dall'AI leggendo la diff — il dev conferma in 10 secondi", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Spostata validazione nel middleware"', color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "  ", color: WHITE }, { text: "// Scritto dal dev — UNA riga", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  perche_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "bug SSR #432"', color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Scritto dal dev — UNA riga, nel momento giusto", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  perche_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Performance serializer sotto carico #432"', color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "  ", color: WHITE }, { text: "// Il campo che vale oro tra 6 mesi", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  cosa_si_rompe", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: "  // UNA riga", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Il campo che nessuno compila — ma vale oro tra 6 mesi", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_si_rompe", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Client senza user_id ricevono 400"', color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "}", color: WHITE }] },
         { tokens: [] },
-        { tokens: [{ text: "// ❌ Vietato: 'Revisiona la doc prima del merge'", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "// ✅ L'AI fa il lavoro sporco", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "// ✅ L'umano mette l'intento", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// ❌ VIETATO: 'Revisiona la doc prima del merge'", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "//    Sotto scadenza diventa un click automatico senza leggere nulla.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// ✅ L'AI fa il lavoro sporco: legge la diff, pre-compila il COSA", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// ✅ L'umano mette l'intento: a monte, non a valle del processo", color: COMMENT_COLOR }] },
       ],
     },
   },
@@ -247,29 +273,36 @@ const slides = [
     content: {
       type: "markdown",
       lines: [
-        { type: "heading1", text: "# Architecture Decision Record" },
+        { type: "heading1", text: "# E per le decisioni grosse?" },
         { type: "blank", text: "" },
-        { type: "text", text: "Per cambi strutturali (1-2 volte al mese)," },
-        { type: "text", text: "una riga nella MR non basta." },
+        { type: "bold", text: "**Architecture Decision Record (ADR)**" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Per cambi strutturali importanti — una o due volte al mese —" },
+        { type: "text", text: "una riga nella MR non basta. Ci serve un file dedicato." },
         { type: "blank", text: "" },
         { type: "heading2", text: "## Template ADR leggero:" },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **Contesto**: Qual era il problema?" },
-        { type: "bullet", text: "- **Decisione**: Cosa abbiamo scelto?" },
-        { type: "bullet", text: "- **Conseguenze**: Cosa cambia?" },
-        { type: "bullet", text: "- **Alternative scartate**: Cos'altro c'era?" },
+        { type: "bullet", text: "- **Contesto**: Qual era il problema che ha generato la decisione?" },
+        { type: "bullet", text: "- **Decisione**: Cosa abbiamo scelto e perché proprio questo?" },
+        { type: "bullet", text: "- **Conseguenze**: Cosa cambia? Quali trade-off accettiamo?" },
+        { type: "bullet", text: "- **Alternative scartate**: Cos'altro c'era sul tavolo?" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "text", text: "L'agente AI suggerisce l'ADR se la diff tocca mezza codebase." },
+        { type: "text", text: "L'agente AI non forza la creazione dell'ADR." },
+        { type: "text", text: "Ma quando rileva una diff che tocca molti file" },
+        { type: "text", text: "o che cambia interfacce pubbliche," },
+        { type: "bold", text: "**suggerisce** l'ADR come commento nella MR." },
+        { type: "blank", text: "" },
         { type: "italic", text: "_Pressione sociale leggera, non enforcement rigido._" },
+        { type: "italic", text: "_Non blocchiamo la CI. Cambiamo l'incentivo._" },
       ],
     },
   },
   {
-    id: "09_toolkit.yml",
+    id: "09_approcci.yml",
     folder: "config",
-    title: "Toolkit",
+    title: "Approcci",
     icon: "yml",
     content: {
       type: "code",
@@ -278,25 +311,24 @@ const slides = [
         { tokens: [{ text: "# workshop-toolkit.yml", color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "monorepo", color: LIGHT_BLUE }, { text: ":", color: WHITE }] },
-        { tokens: [{ text: "  backend", color: LIGHT_BLUE }, { text: ":  ", color: WHITE }, { text: "Django (Python)", color: ORANGE }] },
-        { tokens: [{ text: "  frontend", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "Astro/Nuxt (TS)", color: ORANGE }] },
-        { tokens: [{ text: "  cms", color: LIGHT_BLUE }, { text: ":      ", color: WHITE }, { text: "WordPress (PHP)", color: ORANGE }] },
+        { tokens: [{ text: "  backend", color: LIGHT_BLUE }, { text: ":  ", color: WHITE }, { text: "API Django (Python)", color: ORANGE }] },
+        { tokens: [{ text: "  frontend", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "App Astro/Nuxt (JS/TS)", color: ORANGE }] },
         { tokens: [{ text: "  docs", color: LIGHT_BLUE }, { text: ":     ", color: WHITE }, { text: "./docs/*.md", color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "settimana_1", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The Skeleton", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "pydoc-markdown", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# Django docstrings → .md", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "TypeDoc + Starlight", color: ORANGE }, { text: " ", color: WHITE }, { text: "# TS types → docs", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "PHPDoc + WP-CLI", color: ORANGE }, { text: "    ", color: WHITE }, { text: "# WP hooks → .md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "approccio_1", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Estrazione Passiva — Static Analysis", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "pydoc-markdown", color: ORANGE }, { text: "    ", color: WHITE }, { text: "# Django docstrings → .md", color: COMMENT_COLOR }], url: "https://github.com/NiklasRosenstein/pydoc-markdown" },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "TypeDoc", color: ORANGE }, { text: "           ", color: WHITE }, { text: "# TS interfaces → docs", color: COMMENT_COLOR }], url: "https://typedoc.org" },
+        { tokens: [{ text: "  note", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: '"capiremo presto dove finisce il gratis"', color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "settimana_2", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The AI Shadow", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodeWiki.ai", color: ORANGE }, { text: "         ", color: WHITE }, { text: "# Wiki interrogabile", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodiumAI PR-Agent", color: ORANGE }, { text: "   ", color: WHITE }, { text: "# MR auto-summary", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "LiteLLM scripts", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# → AGENTS.md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "approccio_2", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Contesto & Intelligenza — AI Shadow", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodiumAI / CodeRabbit", color: ORANGE }, { text: " ", color: WHITE }, { text: "# MR template + auto-summary su GitLab", color: COMMENT_COLOR }], url: "https://coderabbit.ai" },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodeWiki.ai", color: ORANGE }, { text: "         ", color: WHITE }, { text: "# codebase interrogabile per PM e onboarding", color: COMMENT_COLOR }], url: "https://codewiki.ai" },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "LLM custom scripts", color: ORANGE }, { text: "   ", color: WHITE }, { text: "# genera AGENTS.md di dominio", color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "settimana_3", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The Guardian", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Lefthook", color: ORANGE }, { text: "            ", color: WHITE }, { text: "# pre-push hooks", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Danger (GitLab)", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# MR auto-comment", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Vale", color: ORANGE }, { text: "                ", color: WHITE }, { text: "# prose linter", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "approccio_3", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Governance & Ciclo di vita", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Lefthook", color: ORANGE }, { text: "            ", color: WHITE }, { text: "# pre-push: bloccare o pressione leggera?", color: COMMENT_COLOR }], url: "https://github.com/evilmartians/lefthook" },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Danger (GitLab)", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# commenta MR senza bloccare il flusso", color: COMMENT_COLOR }], url: "https://danger.systems" },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Vale", color: ORANGE }, { text: "                ", color: WHITE }, { text: "# prose linter per i file .md", color: COMMENT_COLOR }], url: "https://vale.sh" },
       ],
     },
   },
@@ -310,24 +342,26 @@ const slides = [
       lines: [
         { type: "heading1", text: "# L'Obiettivo Finale" },
         { type: "blank", text: "" },
-        { type: "text", text: "Non stiamo scriptando un progetto." },
-        { type: "bold", text: "**Stiamo creando un Flusso.**" },
+        { type: "text", text: "Non stiamo scriptando un progetto specifico." },
+        { type: "bold", text: "**Stiamo definendo un Flusso, astratto dallo stack.**" },
         { type: "blank", text: "" },
         { type: "heading2", text: "## La pipeline:" },
         { type: "blank", text: "" },
         { type: "text", text: "```" },
-        { type: "text", text: "Intento umano (MR)" },
-        { type: "text", text: "    → Agente AI" },
-        { type: "text", text: "        → Documentazione" },
-        { type: "text", text: "            → AGENTS.md" },
+        { type: "text", text: "Intento umano (MR template)" },
+        { type: "text", text: "    → Agente AI legge diff + intento" },
+        { type: "text", text: "        → Documentazione aggiornata" },
+        { type: "text", text: "            → AGENTS.md / ADR se necessario" },
         { type: "text", text: "```" },
         { type: "blank", text: "" },
-        { type: "text", text: "Che sia Python, TS o Go, il processo non cambia." },
+        { type: "text", text: "Che sia Python, TypeScript o Go:" },
+        { type: "bold", text: "**il processo mentale non cambia. È replicabile. È sostenibile.**" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
         { type: "quote", text: "> Il codice deve raccontarsi da solo." },
-        { type: "quote", text: "> Noi dobbiamo solo pensare all'architettura." },
+        { type: "quote", text: "> Noi dobbiamo pensare all'architettura e alla logica," },
+        { type: "quote", text: "> non rincorrere file obsoleti." },
       ],
     },
   },
@@ -343,20 +377,20 @@ const slides = [
         { type: "blank", text: "" },
         { type: "heading3", text: "### 📖 Materiale per andare a fondo:" },
         { type: "blank", text: "" },
-        { type: "bullet", text: '- **Nygard (2011)**: "Documenting Architecture Decisions"' },
-        { type: "text", text: "  Il perché dietro ogni decisione architetturale." },
+        { type: "bullet", text: '- **Nygard (2011)**: "Documenting Architecture Decisions"', url: "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions" },
+        { type: "text", text: "  Il blog post che ha reso popolare gli ADR. Perché documentare il 'perché'." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **Write the Docs**: Docs as Code" },
-        { type: "text", text: "  La guida di riferimento sul workflow." },
+        { type: "bullet", text: "- **Write the Docs**: Docs as Code", url: "https://www.writethedocs.org/guide/docs-as-code/" },
+        { type: "text", text: "  Stessi workflow del team dev applicati alla documentazione. Riferimento principale." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **AWS**: Master Architecture Decision Records" },
-        { type: "text", text: "  Best practices da 200+ ADR reali." },
+        { type: "bullet", text: "- **AWS**: Master Architecture Decision Records", url: "https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/welcome.html" },
+        { type: "text", text: "  Best practices da 200+ ADR su progetti reali. Decision-making efficace." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **IBM / DORA 2025**: AI Code Documentation" },
-        { type: "text", text: "  64% dei dev usa AI per la doc. Limiti reali." },
+        { type: "bullet", text: '- **IBM (2026)**: "AI Code Documentation — Benefits and Top Tips"', url: "https://www.ibm.com/think/topics/ai-code-documentation" },
+        { type: "text", text: "  Dati concreti sui limiti reali dell'automazione oggi. Lo stato dell'arte." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **Google**: Documentation Best Practices" },
-        { type: "text", text: "  API vs Inline vs Design Doc." },
+        { type: "bullet", text: "- **Google**: Documentation Best Practices", url: "https://google.github.io/styleguide/docguide/best_practices.html" },
+        { type: "text", text: "  Framework interno: API doc vs commenti inline vs design doc. Cosa documentare e dove." },
       ],
     },
   },
@@ -488,10 +522,12 @@ export default function WorkshopPresentation() {
   const [terminalVisible, setTerminalVisible] = useState(false);
   const [terminalLines, setTerminalLines] = useState(0);
   const [showMinimap, setShowMinimap] = useState(true);
+  const [ctrlHeld, setCtrlHeld] = useState(false);
+  const [hoveredLine, setHoveredLine] = useState(null);
   const editorRef = useRef(null);
 
   const currentSlide = slides[activeSlide];
-  const totalLines = currentSlide.content.lines.length;
+  const totalLines = currentSlide.content.lines?.length ?? 0;
 
   useEffect(() => {
     setVisibleLines(0);
@@ -524,6 +560,7 @@ export default function WorkshopPresentation() {
   }, [terminalVisible]);
 
   const handleKeyDown = useCallback((e) => {
+    if (e.key === "Control" || e.key === "Meta") { setCtrlHeld(true); return; }
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
       setActiveSlide((p) => Math.min(p + 1, slides.length - 1));
@@ -535,10 +572,18 @@ export default function WorkshopPresentation() {
     }
   }, []);
 
+  const handleKeyUp = useCallback((e) => {
+    if (e.key === "Control" || e.key === "Meta") setCtrlHeld(false);
+  }, []);
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
 
   const toggleFolder = (folder) => {
     setOpenFolders((p) => ({ ...p, [folder]: !p[folder] }));
@@ -690,46 +735,110 @@ export default function WorkshopPresentation() {
 
           {/* EDITOR + MINIMAP */}
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-            <div ref={editorRef} style={{ flex: 1, overflowY: "auto", background: BG_EDITOR, padding: "8px 0" }}>
-              {currentSlide.content.lines.map((line, i) => {
-                const visible = i < visibleLines;
-                return (
-                  <div
-                    key={`${activeSlide}-${i}`}
-                    style={{
-                      display: "flex",
-                      minHeight: 22,
-                      lineHeight: "22px",
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "translateX(0)" : "translateX(-8px)",
-                      transition: `opacity 0.25s ease ${i * 0.03}s, transform 0.25s ease ${i * 0.03}s`,
-                      background: "transparent",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = LINE_HIGHLIGHT; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                  >
-                    <div style={{ width: 60, textAlign: "right", paddingRight: 16, color: TEXT_MUTED, fontSize: 12, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
-                      {i + 1}
-                    </div>
-                    <div style={{ flex: 1, paddingRight: 20, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-                      {currentSlide.content.type === "markdown"
-                        ? renderMarkdownLine(line)
-                        : renderCodeTokens(line.tokens)
-                      }
-                    </div>
-                  </div>
-                );
-              })}
-              <div style={{ height: 200 }} />
-            </div>
+            {currentSlide.content.type === "welcome" ? (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: BG_EDITOR, gap: 36, padding: "0 40px" }}>
+                {/* Animated pipeline logo */}
+                <svg width="340" height="110" viewBox="0 0 340 110">
+                  <rect x="10" y="18" width="74" height="74" rx="8" fill="#569CD622" stroke={BLUE} strokeWidth="1.5" />
+                  <text x="47" y="42" textAnchor="middle" fill={BLUE} fontSize="12" fontWeight="600" fontFamily="monospace">{"</>"}</text>
+                  <line x1="22" y1="56" x2="72" y2="56" stroke={BLUE} strokeWidth="1.5" opacity="0.55" />
+                  <line x1="22" y1="65" x2="64" y2="65" stroke={BLUE} strokeWidth="1.5" opacity="0.38" />
+                  <line x1="22" y1="74" x2="68" y2="74" stroke={BLUE} strokeWidth="1.5" opacity="0.25" />
+                  <text x="47" y="106" textAnchor="middle" fill={TEXT_MUTED} fontSize="9">code</text>
 
-            {/* MINIMAP */}
-            {showMinimap && (
-              <div style={{ width: 60, background: BG_EDITOR, borderLeft: `1px solid ${BORDER_COLOR}`, padding: "8px 4px", flexShrink: 0, opacity: 0.5 }}>
-                {currentSlide.content.lines.map((_, i) => (
-                  <div key={i} style={{ height: 3, margin: "1px 4px", background: i < visibleLines ? (i % 3 === 0 ? ACCENT : "#444") : "transparent", borderRadius: 1, transition: `background 0.2s ease ${i * 0.02}s` }} />
-                ))}
+                  <line x1="88" y1="55" x2="116" y2="55" stroke={ACCENT} strokeWidth="2" strokeDasharray="6 3" style={{ animation: "flowDash 1s linear infinite" }} />
+                  <path d="M116,49 L125,55 L116,61" fill="none" stroke={ACCENT} strokeWidth="2" />
+
+                  <circle cx="158" cy="55" r="28" fill="#007ACC16" stroke={ACCENT} strokeWidth="2" style={{ animation: "pulseLogo 2.5s ease-in-out infinite" }} />
+                  <text x="158" y="51" textAnchor="middle" fill={ACCENT} fontSize="12" fontWeight="700">AI</text>
+                  <text x="158" y="65" textAnchor="middle" fill={ACCENT} fontSize="8" opacity="0.8">agent</text>
+                  <text x="158" y="97" textAnchor="middle" fill={TEXT_MUTED} fontSize="9">intent</text>
+
+                  <line x1="190" y1="55" x2="218" y2="55" stroke={GREEN} strokeWidth="2" strokeDasharray="6 3" style={{ animation: "flowDash 1s linear infinite 0.5s" }} />
+                  <path d="M218,49 L227,55 L218,61" fill="none" stroke={GREEN} strokeWidth="2" />
+
+                  <rect x="231" y="18" width="74" height="74" rx="8" fill="#6A995522" stroke={GREEN} strokeWidth="1.5" />
+                  <text x="268" y="42" textAnchor="middle" fill={GREEN} fontSize="10" fontWeight="600" fontFamily="monospace">.md</text>
+                  <line x1="243" y1="56" x2="293" y2="56" stroke={GREEN} strokeWidth="1.5" opacity="0.55" />
+                  <line x1="243" y1="65" x2="285" y2="65" stroke={GREEN} strokeWidth="1.5" opacity="0.38" />
+                  <line x1="243" y1="74" x2="289" y2="74" stroke={GREEN} strokeWidth="1.5" opacity="0.25" />
+                  <text x="268" y="106" textAnchor="middle" fill={TEXT_MUTED} fontSize="9">docs</text>
+                </svg>
+
+                {/* Title block */}
+                <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: WHITE, letterSpacing: "-0.5px" }}>
+                    Workshop: Documentation-as-Code
+                  </div>
+                  <div style={{ fontSize: 18, color: LIGHT_BLUE }}>
+                    & AI Context Engineering
+                  </div>
+                  <div style={{ fontSize: 13, color: TEXT_MUTED, fontStyle: "italic", marginTop: 4 }}>
+                    Dallo scripting manuale alla documentazione self-aware
+                  </div>
+                </div>
+
+                {/* Navigation hints */}
+                <div style={{ display: "flex", gap: 28, fontSize: 11, color: TEXT_MUTED }}>
+                  <span>← → per navigare</span>
+                  <span>` terminale</span>
+                  <span style={{ color: `${ACCENT}CC` }}>⌃ + click per i link</span>
+                </div>
               </div>
+            ) : (
+              <>
+                <div ref={editorRef} style={{ flex: 1, overflowY: "auto", background: BG_EDITOR, padding: "8px 0" }}>
+                  {currentSlide.content.lines.map((line, i) => {
+                    const visible = i < visibleLines;
+                    const isHovered = hoveredLine === i;
+                    const hasUrl = !!line.url;
+                    return (
+                      <div
+                        key={`${activeSlide}-${i}`}
+                        style={{
+                          display: "flex",
+                          minHeight: 22,
+                          lineHeight: "22px",
+                          opacity: visible ? 1 : 0,
+                          transform: visible ? "translateX(0)" : "translateX(-8px)",
+                          transition: `opacity 0.25s ease ${i * 0.03}s, transform 0.25s ease ${i * 0.03}s`,
+                          background: "transparent",
+                          cursor: isHovered && hasUrl ? "pointer" : "default",
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = line.url ? `${ACCENT}22` : LINE_HIGHLIGHT; setHoveredLine(i); }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; setHoveredLine(null); }}
+                        onClick={(e) => { if ((e.ctrlKey || e.metaKey) && line.url) window.open(line.url, "_blank"); }}
+                      >
+                        <div style={{ width: 60, textAlign: "right", paddingRight: 16, color: isHovered && hasUrl ? ACCENT : TEXT_MUTED, fontSize: 12, flexShrink: 0, fontVariantNumeric: "tabular-nums", transition: "color 0.1s ease" }}>
+                          {i + 1}
+                        </div>
+                        <div style={{ flex: 1, paddingRight: 20, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                          {currentSlide.content.type === "markdown"
+                            ? renderMarkdownLine(line)
+                            : renderCodeTokens(line.tokens)
+                          }
+                        </div>
+                        {isHovered && hasUrl && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "0 7px 0 5px", marginRight: 4, background: ctrlHeld ? ACCENT : `${ACCENT}3A`, borderRadius: 4, flexShrink: 0, transition: "background 0.15s ease" }}>
+                            <span style={{ color: ctrlHeld ? "#fff" : ACCENT, fontSize: 12 }}>↗</span>
+                            {!ctrlHeld && <span style={{ color: ACCENT, fontSize: 9, opacity: 0.75, letterSpacing: "0.5px" }}>⌃</span>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div style={{ height: 200 }} />
+                </div>
+
+                {/* MINIMAP */}
+                {showMinimap && (
+                  <div style={{ width: 60, background: BG_EDITOR, borderLeft: `1px solid ${BORDER_COLOR}`, padding: "8px 4px", flexShrink: 0, opacity: 0.5 }}>
+                    {currentSlide.content.lines.map((_, i) => (
+                      <div key={i} style={{ height: 3, margin: "1px 4px", background: i < visibleLines ? (i % 3 === 0 ? ACCENT : "#444") : "transparent", borderRadius: 1, transition: `background 0.2s ease ${i * 0.02}s` }} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -786,8 +895,9 @@ export default function WorkshopPresentation() {
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <span>Ln {totalLines}, Col 1</span>
-          <span>{currentSlide.content.type === "markdown" ? "Markdown" : currentSlide.content.language === "python" ? "Python" : currentSlide.content.language === "typescript" ? "TypeScript" : "YAML"}</span>
+          <span>{currentSlide.content.type === "welcome" ? "Welcome" : currentSlide.content.type === "markdown" ? "Markdown" : currentSlide.content.language === "python" ? "Python" : currentSlide.content.language === "typescript" ? "TypeScript" : "YAML"}</span>
           <span>UTF-8</span>
+          {ctrlHeld && <span style={{ color: "#FFBD2E", fontWeight: 600 }}>⌃ link attivi</span>}
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             ← → naviga
           </span>
@@ -821,6 +931,15 @@ export default function WorkshopPresentation() {
         @keyframes blink {
           0%, 50% { opacity: 1; }
           51%, 100% { opacity: 0; }
+        }
+
+        @keyframes flowDash {
+          to { stroke-dashoffset: -18; }
+        }
+
+        @keyframes pulseLogo {
+          0%, 100% { opacity: 0.75; }
+          50% { opacity: 1; filter: drop-shadow(0 0 8px #007ACC88); }
         }
       `}</style>
     </div>
