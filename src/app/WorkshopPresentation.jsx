@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useWorkshopResponses } from "../lib/useWorkshopResponses";
 
 const ACCENT = "#007ACC";
 const BG_DARK = "#1E1E1E";
@@ -515,6 +516,13 @@ const terminalMessages = [
   { type: "success", text: "✓ Pipeline completata. Documentazione sincronizzata." },
 ];
 
+const workshopQuestions = [
+  { id: 1, question: "Per chi documentiamo? (Agenti AI, Colleghi, PM)" },
+  { id: 2, question: "Quanto cambiamo il codice per l'automazione?" },
+  { id: 3, question: "Per chi commentiamo? (Umani vs Parser)" },
+  { id: 4, question: "Dove vive la verità? (Repo vs esterno)" },
+];
+
 export default function WorkshopPresentation() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [openFolders, setOpenFolders] = useState({ workshop: true, domande: true, problemi: true, config: true });
@@ -525,9 +533,39 @@ export default function WorkshopPresentation() {
   const [ctrlHeld, setCtrlHeld] = useState(false);
   const [hoveredLine, setHoveredLine] = useState(null);
   const editorRef = useRef(null);
+  
+  // Copilot panel states
+  const [copilotVisible, setCopilotVisible] = useState(true);
+  const [selectedQuestion, setSelectedQuestion] = useState(workshopQuestions[0].id);
+  const [userName, setUserName] = useState("");
+  const [userAnswer, setUserAnswer] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  
+  // Firebase hook for real-time responses
+  const { responses, loading, error, addResponse } = useWorkshopResponses(selectedQuestion);
 
   const currentSlide = slides[activeSlide];
   const totalLines = currentSlide.content.lines?.length ?? 0;
+
+  const handleSubmitAnswer = async (e) => {
+    e.preventDefault();
+    if (!userName.trim() || !userAnswer.trim() || submitting) return;
+    
+    setSubmitting(true);
+    
+    try {
+      const question = workshopQuestions.find(q => q.id === selectedQuestion)?.question;
+      await addResponse(selectedQuestion, question, userName, userAnswer);
+      
+      // Clear only answer, keep name for convenience
+      setUserAnswer("");
+    } catch (err) {
+      console.error('Failed to submit answer:', err);
+      alert('Errore nell\'invio della risposta. Riprova.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     setVisibleLines(0);
@@ -569,6 +607,11 @@ export default function WorkshopPresentation() {
       setActiveSlide((p) => Math.max(p - 1, 0));
     } else if (e.key === "`") {
       setTerminalVisible((p) => !p);
+    } else if (e.key === "c" && (e.ctrlKey || e.metaKey)) {
+      if (e.shiftKey) { // Ctrl+Shift+C per toggle Copilot
+        e.preventDefault();
+        setCopilotVisible((p) => !p);
+      }
     }
   }, []);
 
@@ -624,6 +667,24 @@ export default function WorkshopPresentation() {
             </div>
           ))}
           <div style={{ flex: 1 }} />
+          <div
+            style={{ 
+              width: 48, 
+              height: 48, 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              cursor: "pointer", 
+              opacity: copilotVisible ? 1 : 0.5,
+              borderLeft: copilotVisible ? `2px solid ${ACCENT}` : "2px solid transparent"
+            }}
+            onClick={() => setCopilotVisible((p) => !p)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke={copilotVisible ? ACCENT : TEXT_MUTED} strokeWidth="1.5" />
+              <path d="M12 8v8M8 12h8" stroke={copilotVisible ? ACCENT : TEXT_MUTED} strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
           <div
             style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: 0.5 }}
             onClick={() => setTerminalVisible((p) => !p)}
@@ -733,8 +794,10 @@ export default function WorkshopPresentation() {
             <span style={{ color: TEXT_SIDEBAR }}>{currentSlide.id}</span>
           </div>
 
-          {/* EDITOR + MINIMAP */}
+          {/* EDITOR + MINIMAP + COPILOT PANEL */}
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            {/* EDITOR CONTAINER */}
+            <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
             {currentSlide.content.type === "welcome" ? (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: BG_EDITOR, gap: 36, padding: "0 40px" }}>
                 {/* Animated pipeline logo */}
@@ -782,6 +845,7 @@ export default function WorkshopPresentation() {
                 <div style={{ display: "flex", gap: 28, fontSize: 11, color: TEXT_MUTED }}>
                   <span>← → per navigare</span>
                   <span>` terminale</span>
+                  <span>⌃⇧C copilot</span>
                   <span style={{ color: `${ACCENT}CC` }}>⌃ + click per i link</span>
                 </div>
               </div>
@@ -840,6 +904,212 @@ export default function WorkshopPresentation() {
                 )}
               </>
             )}
+            </div>
+
+            {/* COPILOT PANEL */}
+            {copilotVisible && (
+              <div style={{ 
+                width: 380, 
+                background: BG_SIDEBAR, 
+                borderLeft: `1px solid ${BORDER_COLOR}`, 
+                display: "flex", 
+                flexDirection: "column",
+                flexShrink: 0 
+              }}>
+                {/* Copilot Header */}
+                <div style={{ 
+                  height: 40, 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between",
+                  padding: "0 16px", 
+                  borderBottom: `1px solid ${BORDER_COLOR}`,
+                  background: BG_TITLEBAR
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="10" r="8" fill={ACCENT} opacity="0.2" />
+                      <path d="M10 6v8M6 10h8" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>GitHub Copilot</span>
+                  </div>
+                  <span 
+                    style={{ color: TEXT_MUTED, cursor: "pointer", fontSize: 18 }} 
+                    onClick={() => setCopilotVisible(false)}
+                  >×</span>
+                </div>
+
+                {/* Question Selector */}
+                <div style={{ padding: 16, borderBottom: `1px solid ${BORDER_COLOR}` }}>
+                  <label style={{ fontSize: 11, color: TEXT_MUTED, display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    Seleziona Domanda Workshop
+                  </label>
+                  <select 
+                    value={selectedQuestion} 
+                    onChange={(e) => setSelectedQuestion(Number(e.target.value))}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      background: BG_EDITOR,
+                      border: `1px solid ${BORDER_COLOR}`,
+                      borderRadius: 4,
+                      color: TEXT_PRIMARY,
+                      fontSize: 12,
+                      fontFamily: "inherit",
+                      cursor: "pointer",
+                      outline: "none"
+                    }}
+                  >
+                    {workshopQuestions.map(q => (
+                      <option key={q.id} value={q.id}>{q.question}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Responses List */}
+                <div style={{ 
+                  flex: 1, 
+                  overflowY: "auto", 
+                  padding: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12
+                }}>
+                  <div style={{ fontSize: 11, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
+                    Risposte ({responses.length})
+                  </div>
+                  
+                  {loading && (
+                    <div style={{ 
+                      fontSize: 12, 
+                      color: TEXT_MUTED, 
+                      fontStyle: "italic",
+                      textAlign: "center",
+                      padding: "20px 0"
+                    }}>
+                      Caricamento risposte...
+                    </div>
+                  )}
+                  
+                  {error && (
+                    <div style={{ 
+                      fontSize: 12, 
+                      color: "#E06C75", 
+                      background: "#E06C7522",
+                      padding: 12,
+                      borderRadius: 6,
+                      border: "1px solid #E06C7544"
+                    }}>
+                      ⚠️ Firebase non configurato. Le risposte sono salvate solo localmente.
+                    </div>
+                  )}
+                  
+                  {!loading && responses.length > 0 && responses.map(response => (
+                    <div 
+                      key={response.id} 
+                      style={{
+                        background: BG_EDITOR,
+                        border: `1px solid ${BORDER_COLOR}`,
+                        borderRadius: 6,
+                        padding: 12,
+                        animation: "fadeIn 0.3s ease"
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: ACCENT }}>{response.name}</span>
+                        <span style={{ fontSize: 10, color: TEXT_MUTED }}>
+                          {response.timestampISO 
+                            ? new Date(response.timestampISO).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                            : response.timestamp?.toDate 
+                              ? response.timestamp.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                              : 'ora'
+                          }
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 12, color: TEXT_PRIMARY, lineHeight: 1.6, margin: 0 }}>
+                        {response.answer}
+                      </p>
+                    </div>
+                  ))}
+                  
+                  {!loading && responses.length === 0 && !error && (
+                    <div style={{ 
+                      fontSize: 12, 
+                      color: TEXT_MUTED, 
+                      fontStyle: "italic",
+                      textAlign: "center",
+                      padding: "20px 0"
+                    }}>
+                      Nessuna risposta ancora. Sii il primo!
+                    </div>
+                  )}
+                </div>
+
+                {/* Answer Form */}
+                <form onSubmit={handleSubmitAnswer} style={{
+                  borderTop: `1px solid ${BORDER_COLOR}`,
+                  padding: 16,
+                  background: BG_TITLEBAR,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Il tuo nome"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      background: BG_EDITOR,
+                      border: `1px solid ${BORDER_COLOR}`,
+                      borderRadius: 4,
+                      color: TEXT_PRIMARY,
+                      fontSize: 12,
+                      fontFamily: "inherit",
+                      outline: "none"
+                    }}
+                  />
+                  <textarea
+                    placeholder="La tua risposta..."
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    rows={3}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      background: BG_EDITOR,
+                      border: `1px solid ${BORDER_COLOR}`,
+                      borderRadius: 4,
+                      color: TEXT_PRIMARY,
+                      fontSize: 12,
+                      fontFamily: "inherit",
+                      resize: "vertical",
+                      outline: "none"
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!userName.trim() || !userAnswer.trim() || submitting}
+                    style={{
+                      padding: "8px 16px",
+                      background: userName.trim() && userAnswer.trim() && !submitting ? ACCENT : "#555",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 4,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: userName.trim() && userAnswer.trim() && !submitting ? "pointer" : "not-allowed",
+                      opacity: userName.trim() && userAnswer.trim() && !submitting ? 1 : 0.5,
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    {submitting ? "Invio..." : "Invia Risposta"}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
 
           {/* TERMINAL */}
@@ -892,6 +1162,7 @@ export default function WorkshopPresentation() {
             main
           </span>
           <span>Slide {activeSlide + 1}/{slides.length}</span>
+          {copilotVisible && <span style={{ color: "#FFBD2E" }}>✓ Copilot</span>}
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <span>Ln {totalLines}, Col 1</span>
@@ -900,6 +1171,9 @@ export default function WorkshopPresentation() {
           {ctrlHeld && <span style={{ color: "#FFBD2E", fontWeight: 600 }}>⌃ link attivi</span>}
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             ← → naviga
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", opacity: 0.8 }} onClick={() => setCopilotVisible((p) => !p)}>
+            ⌃⇧C copilot
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", opacity: 0.8 }} onClick={() => setTerminalVisible((p) => !p)}>
             ` terminale
