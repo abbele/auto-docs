@@ -1,0 +1,828 @@
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+
+const ACCENT = "#007ACC";
+const BG_DARK = "#1E1E1E";
+const BG_SIDEBAR = "#252526";
+const BG_EDITOR = "#1E1E1E";
+const BG_TAB_ACTIVE = "#1E1E1E";
+const BG_TAB_INACTIVE = "#2D2D2D";
+const BG_TITLEBAR = "#323233";
+const BG_STATUSBAR = "#007ACC";
+const BG_TERMINAL = "#1E1E1E";
+const TEXT_PRIMARY = "#D4D4D4";
+const TEXT_MUTED = "#808080";
+const TEXT_SIDEBAR = "#CCCCCC";
+const BORDER_COLOR = "#3C3C3C";
+const LINE_HIGHLIGHT = "#2A2D2E";
+const YELLOW = "#DCDCAA";
+const BLUE = "#569CD6";
+const GREEN = "#6A9955";
+const ORANGE = "#CE9178";
+const PURPLE = "#C586C0";
+const CYAN = "#4EC9B0";
+const LIGHT_BLUE = "#9CDCFE";
+const WHITE = "#D4D4D4";
+const COMMENT_COLOR = "#6A9955";
+const PINK = "#C586C0";
+
+const slides = [
+  {
+    id: "00_intro.md",
+    folder: "workshop",
+    title: "Intro",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Workshop: Documentation-as-Code" },
+        { type: "heading2", text: "## & AI Context Engineering" },
+        { type: "blank", text: "" },
+        { type: "quote", text: "> Dallo scripting manuale alla documentazione self-aware." },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- Uscire dallo stallo della documentazione obsoleta" },
+        { type: "bullet", text: "- Nessuna burocrazia aggiuntiva" },
+        { type: "bullet", text: "- Massima resa, minimo sforzo" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- 3 settimane · 3-4 ore · zero sovrastrutture -->" },
+      ],
+    },
+  },
+  {
+    id: "01_debito.md",
+    folder: "workshop",
+    title: "Il Debito",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Il debito più democratico" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Il codice corre per il business." },
+        { type: "bold", text: "**La documentazione resta ferma.**" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Dopo due sprint, il README è obsoleto." },
+        { type: "text", text: "Un documento obsoleto non è inutile:" },
+        { type: "bold", text: "**è pericoloso.**" },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Ruotano i team, cambiano i PM:" },
+        { type: "italic", text: "_la codebase diventa una lingua dimenticata._" },
+      ],
+    },
+  },
+  {
+    id: "02_regole.md",
+    folder: "workshop",
+    title: "Le Regole",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Le regole del gioco" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Non partiremo da risposte." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **4 domande** fondamentali da sciogliere" },
+        { type: "bullet", text: "- Testando **codice e automazione**" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## 1 regola aurea:" },
+        { type: "quote", text: "> L'automazione deve richiedere il minimo intervento possibile." },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "bold", text: "**Stiamo risolvendo il problema o stiamo solo creando**" },
+        { type: "bold", text: "**un nuovo sistema impossibile da mantenere?**" },
+      ],
+    },
+  },
+  {
+    id: "03_per_chi.md",
+    folder: "domande",
+    title: "Per Chi?",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Domanda 1: Per chi documentiamo?" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Tre destinatari in tensione tra loro:" },
+        { type: "blank", text: "" },
+        { type: "heading3", text: "### 🤖 Agenti AI" },
+        { type: "text", text: "AGENTS.md per non generare allucinazioni sui pattern custom." },
+        { type: "blank", text: "" },
+        { type: "heading3", text: "### 👥 Colleghi" },
+        { type: "text", text: "Abbattere il Bus Factor. Stop reverse engineering." },
+        { type: "blank", text: "" },
+        { type: "heading3", text: "### 📊 PM ed Esterni" },
+        { type: "text", text: "Decisioni di business leggibili." },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "italic", text: "_Possiamo accontentarli tutti con un solo formato?_" },
+        { type: "bold", text: "**O l'AI è diventata la nostra vera priorità?**" },
+      ],
+    },
+  },
+  {
+    id: "04_codice.md",
+    folder: "domande",
+    title: "Il Codice",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Domanda 2: Quanto cambiamo il codice?" },
+        { type: "blank", text: "" },
+        { type: "text", text: "L'automazione richiede standard." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- Type Hinting rigoroso per un sito vetrina di 3 mesi?" },
+        { type: "bullet", text: "- Codice \"veloce\" vs Codice \"strutturato\"" },
+        { type: "bullet", text: "- Chi decide l'equilibrio tra pragmatismo e rigore?" },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "quote", text: "> Se alla fine del workshop non abbiamo almeno" },
+        { type: "quote", text: "> una regola minima e concreta," },
+        { type: "quote", text: "> torneremo al punto di partenza." },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- I workshop che finiscono con 'ognuno decida per sé' non cambiano nulla. -->" },
+      ],
+    },
+  },
+  {
+    id: "05_umani_parser.md",
+    folder: "domande",
+    title: "Umani vs Parser",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Domande 3 & 4" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Per chi commentiamo?" },
+        { type: "blank", text: "" },
+        { type: "text", text: "JSDoc per il tooltip dell'IDE" },
+        { type: "text", text: "o per l'LLM che analizza la git diff?" },
+        { type: "italic", text: "_Esiste un formato unico?_" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Dove vive la verità?" },
+        { type: "blank", text: "" },
+        { type: "text", text: "File `.md` nella repo o entità esterna?" },
+        { type: "blank", text: "" },
+        { type: "bold", text: "**Come garantiamo che la doc resti sincronizzata**" },
+        { type: "bold", text: "**al 100% con ogni push su GitLab?**" },
+      ],
+    },
+  },
+  {
+    id: "06_limite_ai.py",
+    folder: "problemi",
+    title: "Limite AI",
+    icon: "py",
+    content: {
+      type: "code",
+      language: "python",
+      lines: [
+        { tokens: [{ text: "# L'AI legge la diff, ma non il contesto.", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "class", color: BLUE }, { text: " DiffAnalysis", color: CYAN }, { text: ":", color: WHITE }] },
+        { tokens: [{ text: '    """', color: ORANGE }] },
+        { tokens: [{ text: "    La diff dice COSA è cambiato.", color: ORANGE }] },
+        { tokens: [{ text: "    Non dice mai PERCHÉ.", color: ORANGE }] },
+        { tokens: [{ text: '    """', color: ORANGE }] },
+        { tokens: [] },
+        { tokens: [{ text: "    ", color: WHITE }, { text: "# Backend: spostata validazione nel middleware", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    what_changed", color: LIGHT_BLUE }, { text: " = ", color: WHITE }, { text: '"validation → middleware"', color: ORANGE }] },
+        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Performance? Bug? Cliente?", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "    ", color: WHITE }, { text: "# Frontend: tolto Pinia, usato useState", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "    what_changed", color: LIGHT_BLUE }, { text: " = ", color: WHITE }, { text: '"pinia → useState composable"', color: ORANGE }] },
+        { tokens: [{ text: "    why_changed", color: LIGHT_BLUE }, { text: "  = ", color: WHITE }, { text: "None", color: BLUE }, { text: "  ", color: WHITE }, { text: "# Idratazione SSR? Bundle size?", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [] },
+        { tokens: [{ text: "# Se la doc non spiega il PERCHÉ,", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# tra 6 mesi qualcuno reintrodurrà Pinia", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# e romperà tutto di nuovo.", color: COMMENT_COLOR }] },
+      ],
+    },
+  },
+  {
+    id: "07_human_loop.ts",
+    folder: "problemi",
+    title: "Human Loop",
+    icon: "ts",
+    content: {
+      type: "code",
+      language: "typescript",
+      lines: [
+        { tokens: [{ text: "// L'umano nel loop — senza impazzire", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "interface", color: BLUE }, { text: " MergeRequestTemplate", color: CYAN }, { text: " {", color: WHITE }] },
+        { tokens: [] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Pre-compilato dall'AI dalla diff", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: "  // ✅ 10 sec conferma", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Scritto dal dev — UNA riga", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  perche_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "bug SSR #432"', color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Il campo che vale oro tra 6 mesi", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_si_rompe", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: "  // UNA riga", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "}", color: WHITE }] },
+        { tokens: [] },
+        { tokens: [{ text: "// ❌ Vietato: 'Revisiona la doc prima del merge'", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// ✅ L'AI fa il lavoro sporco", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// ✅ L'umano mette l'intento", color: COMMENT_COLOR }] },
+      ],
+    },
+  },
+  {
+    id: "08_adr.md",
+    folder: "problemi",
+    title: "ADR",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Architecture Decision Record" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Per cambi strutturali (1-2 volte al mese)," },
+        { type: "text", text: "una riga nella MR non basta." },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Template ADR leggero:" },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **Contesto**: Qual era il problema?" },
+        { type: "bullet", text: "- **Decisione**: Cosa abbiamo scelto?" },
+        { type: "bullet", text: "- **Conseguenze**: Cosa cambia?" },
+        { type: "bullet", text: "- **Alternative scartate**: Cos'altro c'era?" },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "text", text: "L'agente AI suggerisce l'ADR se la diff tocca mezza codebase." },
+        { type: "italic", text: "_Pressione sociale leggera, non enforcement rigido._" },
+      ],
+    },
+  },
+  {
+    id: "09_toolkit.yml",
+    folder: "config",
+    title: "Toolkit",
+    icon: "yml",
+    content: {
+      type: "code",
+      language: "yaml",
+      lines: [
+        { tokens: [{ text: "# workshop-toolkit.yml", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "monorepo", color: LIGHT_BLUE }, { text: ":", color: WHITE }] },
+        { tokens: [{ text: "  backend", color: LIGHT_BLUE }, { text: ":  ", color: WHITE }, { text: "Django (Python)", color: ORANGE }] },
+        { tokens: [{ text: "  frontend", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "Astro/Nuxt (TS)", color: ORANGE }] },
+        { tokens: [{ text: "  cms", color: LIGHT_BLUE }, { text: ":      ", color: WHITE }, { text: "WordPress (PHP)", color: ORANGE }] },
+        { tokens: [{ text: "  docs", color: LIGHT_BLUE }, { text: ":     ", color: WHITE }, { text: "./docs/*.md", color: ORANGE }] },
+        { tokens: [] },
+        { tokens: [{ text: "settimana_1", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The Skeleton", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "pydoc-markdown", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# Django docstrings → .md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "TypeDoc + Starlight", color: ORANGE }, { text: " ", color: WHITE }, { text: "# TS types → docs", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "PHPDoc + WP-CLI", color: ORANGE }, { text: "    ", color: WHITE }, { text: "# WP hooks → .md", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "settimana_2", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The AI Shadow", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodeWiki.ai", color: ORANGE }, { text: "         ", color: WHITE }, { text: "# Wiki interrogabile", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodiumAI PR-Agent", color: ORANGE }, { text: "   ", color: WHITE }, { text: "# MR auto-summary", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "LiteLLM scripts", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# → AGENTS.md", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "settimana_3", color: CYAN }, { text: ":", color: WHITE }, { text: "  # The Guardian", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Lefthook", color: ORANGE }, { text: "            ", color: WHITE }, { text: "# pre-push hooks", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Danger (GitLab)", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# MR auto-comment", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Vale", color: ORANGE }, { text: "                ", color: WHITE }, { text: "# prose linter", color: COMMENT_COLOR }] },
+      ],
+    },
+  },
+  {
+    id: "10_obiettivo.md",
+    folder: "config",
+    title: "Obiettivo",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# L'Obiettivo Finale" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Non stiamo scriptando un progetto." },
+        { type: "bold", text: "**Stiamo creando un Flusso.**" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## La pipeline:" },
+        { type: "blank", text: "" },
+        { type: "text", text: "```" },
+        { type: "text", text: "Intento umano (MR)" },
+        { type: "text", text: "    → Agente AI" },
+        { type: "text", text: "        → Documentazione" },
+        { type: "text", text: "            → AGENTS.md" },
+        { type: "text", text: "```" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Che sia Python, TS o Go, il processo non cambia." },
+        { type: "blank", text: "" },
+        { type: "line", text: "---" },
+        { type: "blank", text: "" },
+        { type: "quote", text: "> Il codice deve raccontarsi da solo." },
+        { type: "quote", text: "> Noi dobbiamo solo pensare all'architettura." },
+      ],
+    },
+  },
+  {
+    id: "11_risorse.md",
+    folder: "config",
+    title: "Risorse",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Approfondimenti" },
+        { type: "blank", text: "" },
+        { type: "heading3", text: "### 📖 Materiale per andare a fondo:" },
+        { type: "blank", text: "" },
+        { type: "bullet", text: '- **Nygard (2011)**: "Documenting Architecture Decisions"' },
+        { type: "text", text: "  Il perché dietro ogni decisione architetturale." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **Write the Docs**: Docs as Code" },
+        { type: "text", text: "  La guida di riferimento sul workflow." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **AWS**: Master Architecture Decision Records" },
+        { type: "text", text: "  Best practices da 200+ ADR reali." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **IBM / DORA 2025**: AI Code Documentation" },
+        { type: "text", text: "  64% dei dev usa AI per la doc. Limiti reali." },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- **Google**: Documentation Best Practices" },
+        { type: "text", text: "  API vs Inline vs Design Doc." },
+      ],
+    },
+  },
+];
+
+const fileIcons = {
+  md: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="14" height="14" rx="2" fill="#519aba" opacity="0.15" />
+      <text x="8" y="12" textAnchor="middle" fill="#519aba" fontSize="9" fontWeight="bold" fontFamily="monospace">M</text>
+    </svg>
+  ),
+  py: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="14" height="14" rx="2" fill="#3572A5" opacity="0.15" />
+      <text x="8" y="12" textAnchor="middle" fill="#3572A5" fontSize="9" fontWeight="bold" fontFamily="monospace">Py</text>
+    </svg>
+  ),
+  ts: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="14" height="14" rx="2" fill="#3178C6" opacity="0.15" />
+      <text x="8" y="12" textAnchor="middle" fill="#3178C6" fontSize="9" fontWeight="bold" fontFamily="monospace">TS</text>
+    </svg>
+  ),
+  yml: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="14" height="14" rx="2" fill="#cb171e" opacity="0.15" />
+      <text x="8" y="12" textAnchor="middle" fill="#cb171e" fontSize="8" fontWeight="bold" fontFamily="monospace">YML</text>
+    </svg>
+  ),
+};
+
+const ChevronIcon = ({ open }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill={TEXT_MUTED} style={{ transition: "transform 0.2s ease", transform: open ? "rotate(90deg)" : "rotate(0deg)", flexShrink: 0 }}>
+    <path d="M6 4l4 4-4 4" stroke={TEXT_MUTED} strokeWidth="1.5" fill="none" />
+  </svg>
+);
+
+const FolderIcon = ({ open }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+    {open ? (
+      <path d="M1.5 3.5h4l1.5 1.5h7v8h-13z" fill="#dcb67a" opacity="0.8" />
+    ) : (
+      <path d="M1.5 2.5h4l1.5 1.5h7v9h-13z" fill="#dcb67a" opacity="0.6" />
+    )}
+  </svg>
+);
+
+function renderMarkdownLine(line) {
+  const t = line.text || "";
+  switch (line.type) {
+    case "heading1":
+      return <span><span style={{ color: BLUE }}>{"# "}</span><span style={{ color: WHITE, fontWeight: 700, fontSize: "1.1em" }}>{t.replace(/^#\s*/, "")}</span></span>;
+    case "heading2":
+      return <span><span style={{ color: BLUE }}>{"## "}</span><span style={{ color: "#9CDCFE", fontWeight: 600 }}>{t.replace(/^##\s*/, "")}</span></span>;
+    case "heading3":
+      return <span><span style={{ color: BLUE }}>{"### "}</span><span style={{ color: "#9CDCFE" }}>{t.replace(/^###\s*/, "")}</span></span>;
+    case "quote":
+      return <span><span style={{ color: GREEN }}>{"> "}</span><span style={{ color: "#98C379", fontStyle: "italic" }}>{t.replace(/^>\s*/, "")}</span></span>;
+    case "bullet": {
+      const inner = t.replace(/^-\s*/, "");
+      const parts = inner.split(/(\*\*[^*]+\*\*)/g);
+      return (
+        <span>
+          <span style={{ color: ORANGE }}>{"- "}</span>
+          {parts.map((p, i) =>
+            p.startsWith("**") ? (
+              <span key={i} style={{ color: WHITE, fontWeight: 600 }}>{p.replace(/\*\*/g, "")}</span>
+            ) : (
+              <span key={i} style={{ color: TEXT_PRIMARY }}>{p}</span>
+            )
+          )}
+        </span>
+      );
+    }
+    case "bold": {
+      const parts = t.split(/(\*\*[^*]+\*\*)/g);
+      return (
+        <span>
+          {parts.map((p, i) =>
+            p.startsWith("**") ? (
+              <span key={i} style={{ color: WHITE, fontWeight: 700 }}>{p.replace(/\*\*/g, "")}</span>
+            ) : (
+              <span key={i} style={{ color: TEXT_PRIMARY }}>{p}</span>
+            )
+          )}
+        </span>
+      );
+    }
+    case "italic":
+      return <span style={{ color: "#98C379", fontStyle: "italic" }}>{t.replace(/_/g, "")}</span>;
+    case "comment":
+      return <span style={{ color: COMMENT_COLOR }}>{t}</span>;
+    case "line":
+      return <span style={{ color: TEXT_MUTED }}>{"─".repeat(50)}</span>;
+    case "blank":
+      return <span>{" "}</span>;
+    default:
+      return <span style={{ color: TEXT_PRIMARY }}>{t}</span>;
+  }
+}
+
+function renderCodeTokens(tokens) {
+  if (!tokens || tokens.length === 0) return <span>{" "}</span>;
+  return (
+    <span>
+      {tokens.map((tok, i) => (
+        <span key={i} style={{ color: tok.color }}>{tok.text}</span>
+      ))}
+    </span>
+  );
+}
+
+const terminalMessages = [
+  { type: "cmd", text: "$ git push origin feat/doc-pipeline" },
+  { type: "out", text: "⠋ Running Lefthook pre-push hooks..." },
+  { type: "out", text: "✓ pydoc-markdown: 47 docstrings extracted" },
+  { type: "out", text: "✓ typedoc: 23 interfaces documented" },
+  { type: "out", text: "✓ vale: prose linting passed (0 errors)" },
+  { type: "warn", text: "⚠ danger: MR description campo 'perché' troppo generico" },
+  { type: "out", text: "✓ AI agent: AGENTS.md aggiornato" },
+  { type: "success", text: "✓ Pipeline completata. Documentazione sincronizzata." },
+];
+
+export default function WorkshopPresentation() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [openFolders, setOpenFolders] = useState({ workshop: true, domande: true, problemi: true, config: true });
+  const [visibleLines, setVisibleLines] = useState(0);
+  const [terminalVisible, setTerminalVisible] = useState(false);
+  const [terminalLines, setTerminalLines] = useState(0);
+  const [showMinimap, setShowMinimap] = useState(true);
+  const editorRef = useRef(null);
+
+  const currentSlide = slides[activeSlide];
+  const totalLines = currentSlide.content.lines.length;
+
+  useEffect(() => {
+    setVisibleLines(0);
+    const timer = setInterval(() => {
+      setVisibleLines((prev) => {
+        if (prev >= totalLines) {
+          clearInterval(timer);
+          return totalLines;
+        }
+        return prev + 1;
+      });
+    }, 60);
+    return () => clearInterval(timer);
+  }, [activeSlide, totalLines]);
+
+  useEffect(() => {
+    if (terminalVisible) {
+      setTerminalLines(0);
+      const timer = setInterval(() => {
+        setTerminalLines((prev) => {
+          if (prev >= terminalMessages.length) {
+            clearInterval(timer);
+            return terminalMessages.length;
+          }
+          return prev + 1;
+        });
+      }, 400);
+      return () => clearInterval(timer);
+    }
+  }, [terminalVisible]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveSlide((p) => Math.min(p + 1, slides.length - 1));
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveSlide((p) => Math.max(p - 1, 0));
+    } else if (e.key === "`") {
+      setTerminalVisible((p) => !p);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  const toggleFolder = (folder) => {
+    setOpenFolders((p) => ({ ...p, [folder]: !p[folder] }));
+  };
+
+  const folders = {};
+  slides.forEach((s, i) => {
+    if (!folders[s.folder]) folders[s.folder] = [];
+    folders[s.folder].push({ ...s, index: i });
+  });
+
+  const folderOrder = ["workshop", "domande", "problemi", "config"];
+
+  return (
+    <div style={{ width: "100%", height: "100vh", display: "flex", flexDirection: "column", background: BG_DARK, fontFamily: "'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace", color: TEXT_PRIMARY, overflow: "hidden", fontSize: "13px", userSelect: "none" }} tabIndex={0}>
+
+      {/* TITLE BAR */}
+      <div style={{ height: 30, background: BG_TITLEBAR, display: "flex", alignItems: "center", justifyContent: "center", borderBottom: `1px solid ${BORDER_COLOR}`, flexShrink: 0, gap: 8 }}>
+        <div style={{ position: "absolute", left: 12, display: "flex", gap: 6 }}>
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FF5F56" }} />
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FFBD2E" }} />
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#27C93F" }} />
+        </div>
+        <span style={{ fontSize: 12, color: TEXT_MUTED }}>{currentSlide.id} — workshop-doc-as-code</span>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+
+        {/* ACTIVITY BAR */}
+        <div style={{ width: 48, background: BG_SIDEBAR, borderRight: `1px solid ${BORDER_COLOR}`, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 8, gap: 4, flexShrink: 0 }}>
+          {[
+            <svg key="f" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 7h4l2-2h8l2 2h2v12H3z" stroke={activeSlide >= 0 ? "#fff" : TEXT_MUTED} strokeWidth="1.5" /></svg>,
+            <svg key="s" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6" stroke={TEXT_MUTED} strokeWidth="1.5" /><path d="M16 16l4 4" stroke={TEXT_MUTED} strokeWidth="1.5" /></svg>,
+            <svg key="g" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" stroke={TEXT_MUTED} strokeWidth="1.5" /><path d="M12 9v6m-4 4h8" stroke={TEXT_MUTED} strokeWidth="1.5" /></svg>,
+          ].map((icon, i) => (
+            <div key={i} style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", borderLeft: i === 0 ? `2px solid ${ACCENT}` : "2px solid transparent", cursor: "pointer", opacity: i === 0 ? 1 : 0.5 }}>
+              {icon}
+            </div>
+          ))}
+          <div style={{ flex: 1 }} />
+          <div
+            style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: 0.5 }}
+            onClick={() => setTerminalVisible((p) => !p)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M4 17l6-5-6-5" stroke={TEXT_MUTED} strokeWidth="1.5" />
+              <path d="M12 19h8" stroke={TEXT_MUTED} strokeWidth="1.5" />
+            </svg>
+          </div>
+        </div>
+
+        {/* SIDEBAR */}
+        <div style={{ width: 220, background: BG_SIDEBAR, borderRight: `1px solid ${BORDER_COLOR}`, overflowY: "auto", flexShrink: 0 }}>
+          <div style={{ padding: "10px 16px 6px", fontSize: 11, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+            Explorer
+          </div>
+          <div style={{ padding: "0 0 8px" }}>
+            <div style={{ padding: "4px 12px", fontSize: 11, fontWeight: 700, color: TEXT_SIDEBAR, textTransform: "uppercase", letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 4 }}>
+              <ChevronIcon open={true} />
+              workshop-doc-as-code
+            </div>
+
+            {folderOrder.map((folderName) => {
+              const isOpen = openFolders[folderName];
+              const folderSlides = folders[folderName] || [];
+              return (
+                <div key={folderName}>
+                  <div
+                    style={{ padding: "3px 12px 3px 24px", display: "flex", alignItems: "center", gap: 4, cursor: "pointer", fontSize: 13, color: TEXT_SIDEBAR }}
+                    onClick={() => toggleFolder(folderName)}
+                  >
+                    <ChevronIcon open={isOpen} />
+                    <FolderIcon open={isOpen} />
+                    <span>{folderName}/</span>
+                  </div>
+                  <div style={{ overflow: "hidden", maxHeight: isOpen ? 500 : 0, transition: "max-height 0.3s ease" }}>
+                    {folderSlides.map((s) => (
+                      <div
+                        key={s.index}
+                        onClick={() => setActiveSlide(s.index)}
+                        style={{
+                          padding: "3px 12px 3px 52px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          cursor: "pointer",
+                          fontSize: 13,
+                          color: activeSlide === s.index ? WHITE : TEXT_SIDEBAR,
+                          background: activeSlide === s.index ? `${ACCENT}33` : "transparent",
+                          borderLeft: activeSlide === s.index ? `2px solid ${ACCENT}` : "2px solid transparent",
+                          transition: "all 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => { if (activeSlide !== s.index) e.currentTarget.style.background = "#2A2D2E"; }}
+                        onMouseLeave={(e) => { if (activeSlide !== s.index) e.currentTarget.style.background = "transparent"; }}
+                      >
+                        {fileIcons[s.icon]}
+                        <span>{s.id}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* MAIN EDITOR AREA */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+          {/* TABS */}
+          <div style={{ height: 35, background: BG_TAB_INACTIVE, display: "flex", alignItems: "flex-end", borderBottom: `1px solid ${BORDER_COLOR}`, overflowX: "auto", flexShrink: 0 }}>
+            {slides.map((s, i) => (
+              <div
+                key={i}
+                onClick={() => setActiveSlide(i)}
+                style={{
+                  height: 35,
+                  padding: "0 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  color: activeSlide === i ? WHITE : TEXT_MUTED,
+                  background: activeSlide === i ? BG_TAB_ACTIVE : BG_TAB_INACTIVE,
+                  borderRight: `1px solid ${BORDER_COLOR}`,
+                  borderTop: activeSlide === i ? `1px solid ${ACCENT}` : "1px solid transparent",
+                  borderBottom: activeSlide === i ? `1px solid ${BG_TAB_ACTIVE}` : "none",
+                  transition: "all 0.15s ease",
+                  whiteSpace: "nowrap",
+                  minWidth: 0,
+                  flexShrink: 0,
+                }}
+              >
+                {fileIcons[s.icon]}
+                <span>{s.id}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* BREADCRUMB */}
+          <div style={{ height: 22, background: BG_EDITOR, display: "flex", alignItems: "center", padding: "0 16px", fontSize: 11, color: TEXT_MUTED, borderBottom: `1px solid ${BORDER_COLOR}`, flexShrink: 0, gap: 4 }}>
+            <span>workshop-doc-as-code</span>
+            <span style={{ color: "#555" }}>{">"}</span>
+            <span>{currentSlide.folder}</span>
+            <span style={{ color: "#555" }}>{">"}</span>
+            <span style={{ color: TEXT_SIDEBAR }}>{currentSlide.id}</span>
+          </div>
+
+          {/* EDITOR + MINIMAP */}
+          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            <div ref={editorRef} style={{ flex: 1, overflowY: "auto", background: BG_EDITOR, padding: "8px 0" }}>
+              {currentSlide.content.lines.map((line, i) => {
+                const visible = i < visibleLines;
+                return (
+                  <div
+                    key={`${activeSlide}-${i}`}
+                    style={{
+                      display: "flex",
+                      minHeight: 22,
+                      lineHeight: "22px",
+                      opacity: visible ? 1 : 0,
+                      transform: visible ? "translateX(0)" : "translateX(-8px)",
+                      transition: `opacity 0.25s ease ${i * 0.03}s, transform 0.25s ease ${i * 0.03}s`,
+                      background: "transparent",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = LINE_HIGHLIGHT; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <div style={{ width: 60, textAlign: "right", paddingRight: 16, color: TEXT_MUTED, fontSize: 12, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
+                      {i + 1}
+                    </div>
+                    <div style={{ flex: 1, paddingRight: 20, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                      {currentSlide.content.type === "markdown"
+                        ? renderMarkdownLine(line)
+                        : renderCodeTokens(line.tokens)
+                      }
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ height: 200 }} />
+            </div>
+
+            {/* MINIMAP */}
+            {showMinimap && (
+              <div style={{ width: 60, background: BG_EDITOR, borderLeft: `1px solid ${BORDER_COLOR}`, padding: "8px 4px", flexShrink: 0, opacity: 0.5 }}>
+                {currentSlide.content.lines.map((_, i) => (
+                  <div key={i} style={{ height: 3, margin: "1px 4px", background: i < visibleLines ? (i % 3 === 0 ? ACCENT : "#444") : "transparent", borderRadius: 1, transition: `background 0.2s ease ${i * 0.02}s` }} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* TERMINAL */}
+          {terminalVisible && (
+            <div style={{
+              height: 180,
+              background: BG_TERMINAL,
+              borderTop: `1px solid ${ACCENT}`,
+              flexShrink: 0,
+              display: "flex",
+              flexDirection: "column",
+              animation: "slideUp 0.3s ease",
+            }}>
+              <div style={{ height: 30, display: "flex", alignItems: "center", padding: "0 12px", borderBottom: `1px solid ${BORDER_COLOR}`, gap: 16, fontSize: 11 }}>
+                <span style={{ color: WHITE, borderBottom: `1px solid ${ACCENT}`, paddingBottom: 4 }}>TERMINAL</span>
+                <span style={{ color: TEXT_MUTED }}>PROBLEMS</span>
+                <span style={{ color: TEXT_MUTED }}>OUTPUT</span>
+                <div style={{ flex: 1 }} />
+                <span style={{ color: TEXT_MUTED, cursor: "pointer", fontSize: 16 }} onClick={() => setTerminalVisible(false)}>×</span>
+              </div>
+              <div style={{ flex: 1, padding: "8px 12px", overflowY: "auto", fontSize: 12 }}>
+                {terminalMessages.slice(0, terminalLines).map((msg, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      lineHeight: "20px",
+                      color: msg.type === "cmd" ? CYAN : msg.type === "warn" ? "#E5C07B" : msg.type === "success" ? "#98C379" : TEXT_PRIMARY,
+                      fontWeight: msg.type === "cmd" || msg.type === "success" ? 600 : 400,
+                      opacity: 1,
+                      animation: `fadeIn 0.3s ease`,
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                ))}
+                {terminalLines < terminalMessages.length && (
+                  <span style={{ color: CYAN, animation: "blink 1s infinite" }}>▋</span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* STATUS BAR */}
+      <div style={{ height: 22, background: BG_STATUSBAR, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", fontSize: 11, color: "#fff", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="3" stroke="#fff" strokeWidth="1.5" /><path d="M7 1v2m0 8v2M1 7h2m8 0h2" stroke="#fff" strokeWidth="1" /></svg>
+            main
+          </span>
+          <span>Slide {activeSlide + 1}/{slides.length}</span>
+        </div>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <span>Ln {totalLines}, Col 1</span>
+          <span>{currentSlide.content.type === "markdown" ? "Markdown" : currentSlide.content.language === "python" ? "Python" : currentSlide.content.language === "typescript" ? "TypeScript" : "YAML"}</span>
+          <span>UTF-8</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            ← → naviga
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", opacity: 0.8 }} onClick={() => setTerminalVisible((p) => !p)}>
+            ` terminale
+          </span>
+        </div>
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: ${BG_EDITOR}; }
+        ::-webkit-scrollbar-thumb { background: #424242; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar-corner { background: ${BG_EDITOR}; }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
