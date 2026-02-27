@@ -663,7 +663,7 @@ export default function WorkshopPresentation() {
       setSelectedQuestion(newQuestionId);
     } catch (err) {
       console.error('Failed to add question:', err);
-      alert('Errore nell\'aggiunta della domanda. Riprova.');
+      alert(`Errore nell'aggiunta della domanda:\n\n${err.message}\n\nVerifica che le Security Rules siano pubblicate in Firebase Console.`);
     } finally {
       setAddingQuestion(false);
     }
@@ -1302,6 +1302,23 @@ export default function WorkshopPresentation() {
                           padding: "20px 0"
                         }}>
                           Caricamento domande...
+                        </div>
+                      )}
+                      
+                      {!questionsLoading && customQuestions.length === 0 && (
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: TEXT_MUTED, 
+                          background: BG_EDITOR,
+                          padding: 16,
+                          borderRadius: 6,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          textAlign: "center"
+                        }}>
+                          <div style={{ marginBottom: 8 }}>💡 Nessuna domanda custom ancora</div>
+                          <div style={{ fontSize: 10, fontStyle: "italic", color: "#808080" }}>
+                            Sii il primo a proporne una!
+                          </div>
                         </div>
                       )}
 

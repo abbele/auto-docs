@@ -30,49 +30,52 @@
 
 Nel tab "Rules" di Firestore, incolla questo:
 
-````javascript
+```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Responses collection
     match /workshop-responses/{document=**} {
-      // Permetti lettura a tutti
       allow read: if true;
-
-      // Permetti scrittura solo se i campi sono validi
-      allow create: if request.resource.data.keys().hasAll(['questionId', 'question', 'name', 'answer', 'timestamp'])
-                    && request.resource.data.name is string
+      allow create: if request.resource.data.name is string
                     && request.resource.data.answer is string
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 50
                     && request.resource.data.answer.size() > 0
                     && request.resource.data.answer.size() <= 1000;
-
-      // Impedisci update e delete
       allow update, delete: if false;
     }
 
     // Questions collection
     match /workshop-questions/{document=**} {
-      // Permetti lettura a tutti
       allow read: if true;
-
-      // Permetti creazione di nuove domande con validazione
-      allow create: if request.resource.data.keys().hasAll(['question', 'author', 'timestamp'])
-                    && request.resource.data.question is string
+      allow create: if request.resource.data.question is string
                     && request.resource.data.author is string
                     && request.resource.data.question.size() > 0
                     && request.resource.data.question.size() <= 500
                     && request.resource.data.author.size() > 0
-                    && request.resource.data.author.size() <= 50;
+                    && request.resource.data.author.size() <= 50
+                    && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
+    }
+  }
+}
+```
+
 Clicca "Publish"
 
-### 5. Configura le variabili d'ambiente
+**IMPORTANTE:** Dopo aver pubblicato le regole, verifica gli indici:
 
-1. Copia `.env.example` in `.env.local`:
+1. Vai su **Firestore Database → Indexes → Single field**
+2. Cerca la collection `workshop-questions`
+3. Verifica che il campo `createdAt` sia indicizzato con:
+   - **Collection scope:** Enabled
+   - **Ascending:** Enabled
+   - **Descending:** Enabled (opzionale)
 
-   ```bash
-   cp .env.example .env.local
+Gli indici single-field sono solitamente creati automaticamente. Se necessario, puoi abilitarli manualmente dalla stessa pagina.
+cp .env.example .env.local
+
 ````
 
 2. Apri `.env.local` e incolla i valori dalla configurazione Firebase:
@@ -177,3 +180,4 @@ Le variabili d'ambiente devono essere configurate come **GitHub Secrets** per il
 
 **Rate limiting**
 → Firebase ha limiti automatici, ma sono generosi per workshop
+````

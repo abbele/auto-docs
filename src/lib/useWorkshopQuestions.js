@@ -5,7 +5,8 @@ import {
   query, 
   orderBy, 
   onSnapshot,
-  serverTimestamp 
+  serverTimestamp,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -22,7 +23,7 @@ export function useWorkshopQuestions() {
     }
 
     const questionsRef = collection(db, 'workshop-questions');
-    const q = query(questionsRef, orderBy('timestamp', 'asc'));
+    const q = query(questionsRef, orderBy('createdAt', 'asc'));
 
     const unsubscribe = onSnapshot(
       q,
@@ -51,10 +52,13 @@ export function useWorkshopQuestions() {
 
     try {
       const questionsRef = collection(db, 'workshop-questions');
+      const now = Timestamp.now();
+      
       const docRef = await addDoc(questionsRef, {
         question: questionText.trim(),
         author: author.trim(),
-        timestamp: serverTimestamp()
+        createdAt: now,
+        timestamp: serverTimestamp() // For server-side tracking
       });
       
       // Return the generated ID to use it immediately
