@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useAllResponses } from "../../lib/useWorkshopResponses";
+import { useWorkshopQuestions } from "../../lib/useWorkshopQuestions";
 
 const workshopQuestions = [
   { id: 1, question: "Per chi documentiamo? (Agenti AI, Colleghi, PM)" },
@@ -11,7 +12,20 @@ const workshopQuestions = [
 
 export default function AdminPage() {
   const { allResponses, loading } = useAllResponses();
+  const { customQuestions, loading: questionsLoading } = useWorkshopQuestions();
   const [selectedQuestionFilter, setSelectedQuestionFilter] = useState("all");
+  const [showTab, setShowTab] = useState("responses"); // "responses" or "questions"
+
+  // Combine predefined and custom questions
+  const allQuestions = [
+    ...workshopQuestions,
+    ...customQuestions.map(q => ({
+      id: q.id,
+      question: q.question,
+      author: q.author,
+      isCustom: true
+    }))
+  ];
 
   const filteredResponses = selectedQuestionFilter === "all" 
     ? allResponses 
@@ -49,16 +63,28 @@ export default function AdminPage() {
 
   const getStatsByQuestion = () => {
     const stats = {};
-    workshopQuestions.forEach(q => {
+    allQuestions.forEach(q => {
       stats[q.id] = {
         question: q.question,
-        count: allResponses.filter(r => r.questionId === q.id).length
+        count: allResponses.filter(r => r.questionId === q.id).length,
+        isCustom: q.isCustom || false
       };
     });
     return stats;
   };
 
   const stats = getStatsByQuestion();
+
+  const exportQuestionsAsJSON = () => {
+    const dataStr = JSON.stringify(customQuestions, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `workshop-questions-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div style={{ 
@@ -74,15 +100,58 @@ export default function AdminPage() {
             Workshop Responses - Admin Panel
           </h1>
           <p style={{ color: "#808080", fontSize: 14 }}>
-            Visualizza ed esporta tutte le risposte del workshop
+            Visualizza ed esporta tutte le risposte e domande del workshop
           </p>
         </header>
 
-        {loading ? (
+        {/* Tabs */}
+        <div style={{ 
+          display: "flex", 
+          gap: 12,
+          marginBottom: 32,
+          borderBottom: "1px solid #3C3C3C"
+        }}>
+          <button
+            onClick={() => setShowTab("responses")}
+            style={{
+              padding: "12px 24px",
+              background: showTab === "responses" ? "#007ACC" : "transparent",
+              color: showTab === "responses" ? "#fff" : "#808080",
+              border: "none",
+              borderBottom: showTab === "responses" ? "2px solid #007ACC" : "2px solid transparent",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              fontFamily: "inherit"
+            }}
+          >
+            💬 Risposte ({allResponses.length})
+          </button>
+          <button
+            onClick={() => setShowTab("questions")}
+            style={{
+              padding: "12px 24px",
+              background: showTab === "questions" ? "#007ACC" : "transparent",
+              color: showTab === "questions" ? "#fff" : "#808080",
+              border: "none",
+              borderBottom: showTab === "questions" ? "2px solid #007ACC" : "2px solid transparent",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              fontFamily: "inherit"
+            }}
+          >
+            ❓ Domande Custom ({customQuestions.length})
+          </button>
+        </div>
+
+        {loading || questionsLoading ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#808080" }}>
-            Caricamento risposte...
+            Caricamento...
           </div>
-        ) : (
+        ) : showTab === "responses" ? (
           <>
             {/* Stats */}
             <div style={{ 
@@ -240,6 +309,164 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Questions Tab */}
+            <div style={{ 
+              background: "#252526", 
+              borderRadius: 8, 
+              padding: 24, 
+              marginBottom: 32,
+              border: "1px solid #3C3C3C"
+            }}>
+              <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: "#fff" }}>
+                📊 Statistiche Domande
+              </h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+                <div style={{ background: "#1E1E1E", padding: 16, borderRadius: 6, border: "1px solid #3C3C3C" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#007ACC", marginBottom: 4 }}>
+                    {workshopQuestions.length}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#808080" }}>Domande Predefinite</div>
+                </div>
+                <div style={{ background: "#1E1E1E", padding: 16, borderRadius: 6, border: "1px solid #3C3C3C" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#6A9955", marginBottom: 4 }}>
+                    {customQuestions.length}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#808080" }}>Domande Custom</div>
+                </div>
+                <div style={{ background: "#1E1E1E", padding: 16, borderRadius: 6, border: "1px solid #3C3C3C" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#C586C0", marginBottom: 4 }}>
+                    {allQuestions.length}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#808080" }}>Domande Totali</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Export Button */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "flex-end",
+              marginBottom: 24
+            }}>
+              <button
+                onClick={exportQuestionsAsJSON}
+                disabled={customQuestions.length === 0}
+                style={{
+                  background: "#007ACC",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 4,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: customQuestions.length > 0 ? "pointer" : "not-allowed",
+                  opacity: customQuestions.length > 0 ? 1 : 0.5
+                }}
+              >
+                📥 Export Domande JSON
+              </button>
+            </div>
+
+            {/* Questions List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginBottom: 8 }}>
+                Domande Predefinite del Workshop
+              </h3>
+              {workshopQuestions.map((question, index) => (
+                <div 
+                  key={question.id}
+                  style={{
+                    background: "#252526",
+                    border: "1px solid #3C3C3C",
+                    borderRadius: 8,
+                    padding: 20
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 16 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, color: "#D4D4D4", lineHeight: 1.6 }}>
+                        {question.question}
+                      </div>
+                    </div>
+                    <div style={{
+                      background: "#1E1E1E",
+                      padding: "4px 12px",
+                      borderRadius: 4,
+                      fontSize: 12,
+                      color: "#007ACC",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {stats[question.id]?.count || 0} risposte
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {customQuestions.length > 0 && (
+                <>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fff", marginTop: 24, marginBottom: 8 }}>
+                    Domande Custom dei Partecipanti
+                  </h3>
+                  {customQuestions.map((question) => (
+                    <div 
+                      key={question.id}
+                      style={{
+                        background: "#252526",
+                        border: "1px solid #6A9955",
+                        borderRadius: 8,
+                        padding: 20
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, gap: 16, flexWrap: "wrap" }}>
+                        <div>
+                          <div style={{ fontSize: 14, color: "#D4D4D4", lineHeight: 1.6, marginBottom: 8 }}>
+                            {question.question}
+                          </div>
+                          <div style={{ fontSize: 11, color: "#808080", fontStyle: "italic" }}>
+                            Proposta da: {question.author}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
+                          <div style={{
+                            background: "#1E1E1E",
+                            padding: "4px 12px",
+                            borderRadius: 4,
+                            fontSize: 12,
+                            color: "#6A9955",
+                            whiteSpace: "nowrap"
+                          }}>
+                            {stats[question.id]?.count || 0} risposte
+                          </div>
+                          <div style={{ fontSize: 10, color: "#808080", whiteSpace: "nowrap" }}>
+                            {question.timestamp?.toDate 
+                              ? question.timestamp.toDate().toLocaleString('it-IT')
+                              : 'Data non disponibile'
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {customQuestions.length === 0 && (
+                <div style={{ 
+                  textAlign: "center", 
+                  padding: "40px 20px", 
+                  color: "#808080",
+                  background: "#252526",
+                  borderRadius: 8,
+                  border: "1px solid #3C3C3C",
+                  fontStyle: "italic"
+                }}>
+                  Nessuna domanda custom ancora. I partecipanti possono aggiungerne dal pannello Copilot.
+                </div>
               )}
             </div>
           </>

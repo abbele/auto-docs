@@ -30,10 +30,11 @@
 
 Nel tab "Rules" di Firestore, incolla questo:
 
-```javascript
+````javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Responses collection
     match /workshop-responses/{document=**} {
       // Permetti lettura a tutti
       allow read: if true;
@@ -50,10 +51,20 @@ service cloud.firestore {
       // Impedisci update e delete
       allow update, delete: if false;
     }
-  }
-}
-```
 
+    // Questions collection
+    match /workshop-questions/{document=**} {
+      // Permetti lettura a tutti
+      allow read: if true;
+
+      // Permetti creazione di nuove domande con validazione
+      allow create: if request.resource.data.keys().hasAll(['question', 'author', 'timestamp'])
+                    && request.resource.data.question is string
+                    && request.resource.data.author is string
+                    && request.resource.data.question.size() > 0
+                    && request.resource.data.question.size() <= 500
+                    && request.resource.data.author.size() > 0
+                    && request.resource.data.author.size() <= 50;
 Clicca "Publish"
 
 ### 5. Configura le variabili d'ambiente
@@ -62,7 +73,7 @@ Clicca "Publish"
 
    ```bash
    cp .env.example .env.local
-   ```
+````
 
 2. Apri `.env.local` e incolla i valori dalla configurazione Firebase:
    ```env

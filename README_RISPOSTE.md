@@ -15,12 +15,19 @@
 ### Come funziona
 
 ```
-Partecipante 1 → Scrive risposta → Firebase Firestore
-                                        ↓
-Partecipante 2 → Vede la risposta IN TEMPO REALE
-                                        ↓
+Partecipante 1 → Aggiunge una domanda → Firebase Firestore
+                                            ↓
+Partecipante 2 → Vede la domanda IN TEMPO REALE nel dropdown
+                                            ↓
+Partecipante 3 → Risponde alla nuova domanda
+                                            ↓
          Tu (organizzatore) → Accedi via console o /admin → Export
 ```
+
+**Due collezioni Firebase:**
+
+- `workshop-responses` - Tutte le risposte
+- `workshop-questions` - Domande custom proposte dai partecipanti
 
 ## 🚀 Quick Start
 
@@ -121,13 +128,28 @@ FIREBASE_SETUP.md                 # Guida setup completa
 
 ## 🎨 Features Copilot Panel
 
-- ✨ Dropdown per selezionare domanda
+### Modalità Rispondi
+
+- ✨ Dropdown per selezionare domanda (predefinite + custom)
 - 📝 Form nome + risposta
 - 🔄 Aggiornamento real-time
 - ⏱️ Timestamp automatico
 - 🚫 Validazione campi
 - 📊 Contatore risposte
 - 🎯 Filtro per domanda
+
+### Modalità Aggiungi Domanda (NUOVO!)
+
+- ➕ Proponi nuove domande durante il workshop
+- 👥 Tutte le domande custom visibili a tutti in tempo reale
+- 🔄 Sincronizzazione automatica
+- 📋 Lista delle ultime 5 domande aggiunte
+- ✅ Le nuove domande appaiono immediatamente nel dropdown
+
+### Toggle tra modalità
+
+- 💬 **Rispondi** - Seleziona e rispondi alle domande
+- ➕ **Aggiungi Domanda** - Proponi nuove domande al gruppo
 
 ## 🌐 Deploy su GitHub Pages
 

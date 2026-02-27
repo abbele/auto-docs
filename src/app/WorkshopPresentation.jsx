@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWorkshopResponses } from "../lib/useWorkshopResponses";
+import { useWorkshopQuestions } from "../lib/useWorkshopQuestions";
 
 const ACCENT = "#007ACC";
 const BG_DARK = "#1E1E1E";
@@ -53,12 +54,12 @@ const slides = [
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- Uscire dallo stallo della documentazione obsoleta" },
-        { type: "bullet", text: "- Costruire un flusso replicabile su qualsiasi stack" },
-        { type: "bullet", text: "- Nessuna burocrazia aggiuntiva" },
-        { type: "bullet", text: "- Massima resa, minimo sforzo" },
+        { type: "bullet", text: "- Doc minima, inesistente o che mente: affrontiamola" },
+        { type: "bullet", text: "- Un flusso replicabile su qualsiasi stack" },
+        { type: "bullet", text: "- Zero cerimonie, zero meeting in più" },
+        { type: "bullet", text: "- Massima resa, minimo overhead" },
         { type: "blank", text: "" },
-        { type: "comment", text: "<!-- Non stiamo aggiungendo processo. Stiamo togliendo entropia. -->" },
+        { type: "comment", text: "<!-- Non stiamo aggiungendo burocrazia. Stiamo togliendo i problemi che ritroveremo al prossimo cambio team. -->" },
       ],
     },
   },
@@ -73,46 +74,59 @@ const slides = [
         { type: "heading1", text: "# Il debito più democratico" },
         { type: "blank", text: "" },
         { type: "text", text: "Colpisce tutti, senza eccezioni:" },
-        { type: "bullet", text: "- dal **monolite Django** che ci trasciniamo da due anni" },
-        { type: "bullet", text: "- alle architetture **Nuxt o Astro** che sembravano pulitissime al primo commit" },
+        { type: "bullet", text: "- dal progetto **Django fatto in fretta** tre anni fa" },
+        { type: "bullet", text: "- al progettone **Nuxt 2 pieno di hotfix**" },
         { type: "blank", text: "" },
-        { type: "text", text: "Il codice corre per soddisfare il business." },
+        { type: "text", text: "Il codice corre per soddisfare i client." },
         { type: "bold", text: "**La documentazione resta ferma per mancanza di tempo.**" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "text", text: "Dopo due sprint, il README è obsoleto." },
-        { type: "text", text: "Un documento obsoleto non è inutile:" },
-        { type: "bold", text: "**è pericoloso, perché induce in errore chiunque ci metta mano.**" },
+        { type: "text", text: "Dopo un po' di tempo, il README è inutile o obsoleto." },
+        { type: "text", text: "Un documento obsoleto non è solo inutile:" },
+        { type: "bold", text: "**è pericoloso, perché genera call, rallenta e fa prendere decisioni sbagliate.**" },
         { type: "blank", text: "" },
         { type: "text", text: "Ruotano i team, cambiano i PM:" },
         { type: "italic", text: "_la codebase diventa una lingua dimenticata._" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- Quante call avete fatto nell'ultimo mese che si potevano evitare con un file aggiornato? -->" },
+        { type: "comment", text: "<!-- Quante ore e salute costa un onboarding oggi su un nostro progetto? -->" },
       ],
     },
   },
   {
     id: "02_regole.md",
     folder: "workshop",
-    title: "Le Regole",
+    title: "Come",
     icon: "md",
     content: {
       type: "markdown",
       lines: [
-        { type: "heading1", text: "# Le regole del gioco" },
+        { type: "heading1", text: "# Come funziona questo workshop" },
         { type: "blank", text: "" },
-        { type: "text", text: "Non partiremo da risposte preconfezionate." },
-        { type: "text", text: "Partiamo da **4 domande** da sciogliere testando codice e automazione." },
+        { type: "text", text: "Non ho risposte. Ho domande e un ambiente per testarle." },
         { type: "blank", text: "" },
-        { type: "heading2", text: "## 1 regola aurea:" },
-        { type: "quote", text: "> L'automazione deve richiedere il minimo intervento possibile." },
+        { type: "heading2", text: "## Cosa ci serve:" },
+        { type: "bullet", text: "- Documentazione **automatica**, non manuale" },
+        { type: "bullet", text: "- **Resiliente**: si aggiorna quando cambia il codice" },
+        { type: "bullet", text: "- **Minimo intervento umano**" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- Quanto minimo è 'minimo intervento'? -->" },
+        { type: "comment", text: "<!-- Ci fidiamo di quello che genera? -->" },
+        { type: "comment", text: "<!-- Quanto ci costa mantenerlo rispetto a scrivere la doc a mano? -->" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "text", text: "Se aggiungiamo un sistema che nessuno manterrà," },
-        { type: "italic", text: "_stiamo solo spostando il problema:_" },
+        { type: "text", text: "Un sistema automatico va comunque mantenuto." },
+        { type: "text", text: "E dobbiamo capire se fa davvero quello che promette." },
+        { type: "blank", text: "" },
+        { type: "italic", text: "_Il rischio concreto:_" },
         { type: "text", text: "\"nessuno scrive la doc\" → \"nessuno mantiene il sistema che la genera\"." },
         { type: "blank", text: "" },
-        { type: "bold", text: "**Stiamo risolvendo il problema o creando un nuovo debito?**" },
+        { type: "bold", text: "**Stiamo risolvendo il problema o stiamo creando un nuovo debito?**" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- Manifesto #2: se non serve a niente, non serve nemmeno a noi. -->" },
+        { type: "text", text: "Prima di costruire qualsiasi cosa, dobbiamo capire alcune cose." },
       ],
     },
   },
@@ -131,16 +145,23 @@ const slides = [
         { type: "heading3", text: "### 🤖 Agenti AI" },
         { type: "text", text: "AGENTS.md per non generare allucinazioni sui pattern custom." },
         { type: "text", text: "Un LLM senza contesto ci suggerirà errori camuffati da soluzioni." },
+        { type: "comment", text: "<!-- Quanti token di contesto sprechiamo perché l'agente non sa come lavoriamo? -->" },
         { type: "blank", text: "" },
         { type: "heading3", text: "### 👥 Colleghi" },
         { type: "text", text: "Abbattere il Bus Factor. Stop al reverse engineering da zero." },
         { type: "text", text: "Permettere cambi di progetto indolori, senza settimane di ramp-up." },
+        { type: "comment", text: "<!-- Quante ore e salute costa un onboarding oggi su un nostro progetto? -->" },
         { type: "blank", text: "" },
         { type: "heading3", text: "### 📊 PM ed Esterni" },
         { type: "text", text: "Architettura tecnica leggibile per prendere decisioni di business." },
+        { type: "comment", text: "<!-- Quante call servono a un PM per capire cosa può promettere al cliente? -->" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
+        { type: "blank", text: "" },
         { type: "italic", text: "_Un file AGENTS.md per un LLM è radicalmente diverso da una doc per un PM._" },
+        { type: "text", text: "Un contesto ben scritto risparmia token e riduce le allucinazioni." },
+        { type: "text", text: "Un contesto scritto male li moltiplica entrambi." },
+        { type: "blank", text: "" },
         { type: "bold", text: "**Quale destinatario ha la priorità reale?**" },
       ],
     },
@@ -153,13 +174,18 @@ const slides = [
     content: {
       type: "markdown",
       lines: [
-        { type: "heading1", text: "# Domanda 2: Quanto cambiamo il codice?" },
+        { type: "heading1", text: "# Domanda 2: Dobbiamo cambiare il modo in cui scriviamo?" },
         { type: "blank", text: "" },
         { type: "text", text: "L'automazione richiede standard. Ma a che prezzo?" },
         { type: "blank", text: "" },
         { type: "bullet", text: "- Ha senso imporre **Type Hinting rigoroso** su un micro-progetto di 3 mesi?" },
-        { type: "bullet", text: "- Qual è il costo reale di codice **\"veloce\"** vs codice **\"parser-friendly\"**?" },
-        { type: "bullet", text: "- Chi paga quel debito? E quando lo scopre?" },
+        { type: "bullet", text: "- Codice **\"veloce\"** vs codice **\"parser-friendly\"**: chi paga la differenza?" },
+        { type: "bullet", text: "- Se avessimo scritto diversamente dall'inizio, **ci sarebbe servito oggi**?" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- Dobbiamo cambiare il modo in cui scriviamo, o basta cambiare cosa succede dopo? -->" },
+        { type: "comment", text: "<!-- Type Hinting rigoroso su tutto: investimento o spreco? -->" },
+        { type: "comment", text: "<!-- Quanto tempo in più costa scrivere bene ora vs quanto ne perdiamo dopo? -->" },
+        { type: "comment", text: "<!-- Chi decide lo standard, e su quale progetto? È l'occasione per definirlo? -->" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
@@ -167,7 +193,8 @@ const slides = [
         { type: "quote", text: "> tra pragmatismo e rigore," },
         { type: "quote", text: "> torneremo al punto di partenza." },
         { type: "blank", text: "" },
-        { type: "comment", text: "<!-- I workshop che finiscono con 'ognuno decida per sé' non cambiano nulla. -->" },
+        { type: "comment", text: "<!-- Ha senso avere un flusso, o stiamo risolvendo un problema che non tutti sentono? -->" },
+        { type: "comment", text: "<!-- Manifesto #5: il fine guida, non i mezzi. Ma sperimentare ci piace. -->" },
       ],
     },
   },
@@ -183,18 +210,24 @@ const slides = [
         { type: "blank", text: "" },
         { type: "heading2", text: "## Per chi commentiamo?" },
         { type: "blank", text: "" },
-        { type: "text", text: "Scriviamo JSDoc per il tooltip dell'IDE" },
-        { type: "text", text: "o per istruire l'LLM che analizza la git diff?" },
+        { type: "text", text: "Quando scriviamo un JSDoc o una docstring," },
+        { type: "text", text: "per chi lo stiamo facendo?" },
+        { type: "blank", text: "" },
+        { type: "bullet", text: "- Per **noi del futuro**, che tra 6 mesi non ricorderemo perché" },
+        { type: "bullet", text: "- Per **velocizzare la scrittura**: autocompletamento, tooltip, IDE" },
+        { type: "bullet", text: "- Per **l'agente AI** che legge il contesto e ci suggerisce codice" },
+        { type: "blank", text: "" },
         { type: "text", text: "Quando la risposta cambia, cambia il formato." },
-        { type: "italic", text: "_Esiste un unico commento che soddisfi entrambe le esigenze?_" },
+        { type: "italic", text: "_Esiste un unico commento che soddisfi tutte e tre le esigenze?_" },
+        { type: "comment", text: "<!-- Per chi commentiamo davvero? -->" },
         { type: "blank", text: "" },
         { type: "heading2", text: "## Dove vive la verità?" },
         { type: "blank", text: "" },
         { type: "text", text: "File `.md` nella repo — versionata col codice — o entità esterna?" },
-        { type: "text", text: "La documentazione deve stare dentro la repo per essere" },
-        { type: "text", text: "sincronizzata a ogni push, o ha più senso separarla?" },
+        { type: "comment", text: "<!-- Chi se ne accorge quando doc e codice divergono? -->" },
+        { type: "comment", text: "<!-- Dentro la repo o fuori? -->" },
         { type: "blank", text: "" },
-        { type: "bold", text: "**Come garantiamo che la doc resti allineata al 100%**" },
+        { type: "bold", text: "**Come garantiamo che la doc resti allineata**" },
         { type: "bold", text: "**con ogni push su GitLab?**" },
       ],
     },
@@ -244,64 +277,48 @@ const slides = [
       language: "typescript",
       lines: [
         { tokens: [{ text: "// L'umano nel loop — senza impazzire", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "// La soluzione si aggancia a quello che il dev fa già.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Il problema: l'AI documenta il COSA ma non il PERCHÉ.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Il PERCHÉ sta nella testa del dev. E ci resta poco.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Serve un modo per catturarlo nel momento giusto.", color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "interface", color: BLUE }, { text: " MergeRequestTemplate", color: CYAN }, { text: " {", color: WHITE }] },
+        { tokens: [{ text: "// Un'ipotesi: dare contesto strutturato a ogni push.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Non per controllo. Non per uniformare. Solo per dare contesto.", color: COMMENT_COLOR }] },
         { tokens: [] },
-        { tokens: [{ text: "  ", color: WHITE }, { text: "// Pre-compilato dall'AI leggendo la diff — il dev conferma in 10 secondi", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  cosa_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Spostata validazione nel middleware"', color: COMMENT_COLOR }] },
+        { tokens: [{ text: "interface", color: BLUE }, { text: " PushContext", color: CYAN }, { text: " {", color: WHITE }] },
         { tokens: [] },
-        { tokens: [{ text: "  ", color: WHITE }, { text: "// Scritto dal dev — UNA riga, nel momento giusto", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  perche_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Performance serializer sotto carico #432"', color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Pre-compilato dall'AI leggendo la diff", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Il dev conferma o corregge in 10 secondi", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Tolto Pinia, useState con caching custom"', color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Scritto dal dev — UNA riga", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// È l'unica cosa che la diff non può dire da sola", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  perche_cambia", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Pinia rompeva idratazione SSR su Nuxt 3"', color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "  ", color: WHITE }, { text: "// Il campo che nessuno compila — ma vale oro tra 6 mesi", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  cosa_si_rompe", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "Client senza user_id ricevono 400"', color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  ", color: WHITE }, { text: "// Senza questo, qualcuno reintrodurrà Pinia e romperà tutto", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  cosa_si_rompe", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "string", color: CYAN }, { text: ";", color: WHITE }, { text: '  // "SSR hydration mismatch su pagine con auth"', color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "}", color: WHITE }] },
         { tokens: [] },
-        { tokens: [{ text: "// ❌ VIETATO: 'Revisiona la doc prima del merge'", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "//    Sotto scadenza diventa un click automatico senza leggere nulla.", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "// ✅ L'AI fa il lavoro sporco: legge la diff, pre-compila il COSA", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "// ✅ L'umano mette l'intento: a monte, non a valle del processo", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Oggi non lo facciamo.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// La domanda è: ha senso iniziare?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// E se sì, è questo il formato giusto?", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "// Il contesto serve all'AI per generare doc che abbia senso.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Senza, produce solo un riassunto della diff.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// E un riassunto della diff lo sappiamo già leggere da soli.", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "// E quando la modifica è strutturale —", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// cambia pattern, sposta responsabilità tra servizi —", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// una riga basta? O ci serve un ADR dedicato?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "// Chi lo scrive? L'AI genera il draft, il dev lo completa?", color: COMMENT_COLOR }] },
+        { tokens: [] },
+        { tokens: [{ text: "// Chi è il referente del contesto? Chi si accorge se smette di funzionare?", color: COMMENT_COLOR }] },
       ],
     },
   },
   {
-    id: "08_adr.md",
-    folder: "problemi",
-    title: "ADR",
-    icon: "md",
-    content: {
-      type: "markdown",
-      lines: [
-        { type: "heading1", text: "# E per le decisioni grosse?" },
-        { type: "blank", text: "" },
-        { type: "bold", text: "**Architecture Decision Record (ADR)**" },
-        { type: "blank", text: "" },
-        { type: "text", text: "Per cambi strutturali importanti — una o due volte al mese —" },
-        { type: "text", text: "una riga nella MR non basta. Ci serve un file dedicato." },
-        { type: "blank", text: "" },
-        { type: "heading2", text: "## Template ADR leggero:" },
-        { type: "blank", text: "" },
-        { type: "bullet", text: "- **Contesto**: Qual era il problema che ha generato la decisione?" },
-        { type: "bullet", text: "- **Decisione**: Cosa abbiamo scelto e perché proprio questo?" },
-        { type: "bullet", text: "- **Conseguenze**: Cosa cambia? Quali trade-off accettiamo?" },
-        { type: "bullet", text: "- **Alternative scartate**: Cos'altro c'era sul tavolo?" },
-        { type: "blank", text: "" },
-        { type: "line", text: "---" },
-        { type: "blank", text: "" },
-        { type: "text", text: "L'agente AI non forza la creazione dell'ADR." },
-        { type: "text", text: "Ma quando rileva una diff che tocca molti file" },
-        { type: "text", text: "o che cambia interfacce pubbliche," },
-        { type: "bold", text: "**suggerisce** l'ADR come commento nella MR." },
-        { type: "blank", text: "" },
-        { type: "italic", text: "_Pressione sociale leggera, non enforcement rigido._" },
-        { type: "italic", text: "_Non blocchiamo la CI. Cambiamo l'incentivo._" },
-      ],
-    },
-  },
-  {
-    id: "09_approcci.yml",
+    id: "08_approcci.yml",
     folder: "config",
     title: "Approcci",
     icon: "yml",
@@ -310,64 +327,87 @@ const slides = [
       language: "yaml",
       lines: [
         { tokens: [{ text: "# workshop-toolkit.yml", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# L'approccio core è il 2: AI che genera doc dal contesto.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# Il 1 e il 3 esistono per capire se migliorano il 2.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# Manifesto #1: non dobbiamo fare tutti tutto. Focus sul core.", color: COMMENT_COLOR }] },
         { tokens: [] },
         { tokens: [{ text: "monorepo", color: LIGHT_BLUE }, { text: ":", color: WHITE }] },
         { tokens: [{ text: "  backend", color: LIGHT_BLUE }, { text: ":  ", color: WHITE }, { text: "API Django (Python)", color: ORANGE }] },
         { tokens: [{ text: "  frontend", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: "App Astro/Nuxt (JS/TS)", color: ORANGE }] },
         { tokens: [{ text: "  docs", color: LIGHT_BLUE }, { text: ":     ", color: WHITE }, { text: "./docs/*.md", color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "approccio_1", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Estrazione Passiva — Static Analysis", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "pydoc-markdown", color: ORANGE }, { text: "    ", color: WHITE }, { text: "# Django docstrings → .md", color: COMMENT_COLOR }], url: "https://github.com/NiklasRosenstein/pydoc-markdown" },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "TypeDoc", color: ORANGE }, { text: "           ", color: WHITE }, { text: "# TS interfaces → docs", color: COMMENT_COLOR }], url: "https://typedoc.org" },
-        { tokens: [{ text: "  note", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: '"capiremo presto dove finisce il gratis"', color: ORANGE }] },
+        { tokens: [{ text: "core", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Contesto & Intelligenza — AI Shadow", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodiumAI / CodeRabbit", color: ORANGE }, { text: " ", color: WHITE }, { text: "# MR template + auto-summary", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodeWiki.ai", color: ORANGE }, { text: "         ", color: WHITE }, { text: "# codebase interrogabile", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "LLM custom scripts", color: ORANGE }, { text: "   ", color: WHITE }, { text: "# genera AGENTS.md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  note", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: '"questo è il flusso. il resto è a supporto."', color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "approccio_2", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Contesto & Intelligenza — AI Shadow", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodiumAI / CodeRabbit", color: ORANGE }, { text: " ", color: WHITE }, { text: "# MR template + auto-summary su GitLab", color: COMMENT_COLOR }], url: "https://coderabbit.ai" },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "CodeWiki.ai", color: ORANGE }, { text: "         ", color: WHITE }, { text: "# codebase interrogabile per PM e onboarding", color: COMMENT_COLOR }], url: "https://codewiki.ai" },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "LLM custom scripts", color: ORANGE }, { text: "   ", color: WHITE }, { text: "# genera AGENTS.md di dominio", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "supporto_a", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Estrazione Passiva — migliora l'input al core?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "pydoc-markdown", color: ORANGE }, { text: "    ", color: WHITE }, { text: "# Django docstrings → .md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "TypeDoc", color: ORANGE }, { text: "           ", color: WHITE }, { text: "# TS interfaces → docs", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  domanda", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: '"se diamo all AI anche i metadati statici, genera doc migliore?"', color: ORANGE }] },
         { tokens: [] },
-        { tokens: [{ text: "approccio_3", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Governance & Ciclo di vita", color: COMMENT_COLOR }] },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Lefthook", color: ORANGE }, { text: "            ", color: WHITE }, { text: "# pre-push: bloccare o pressione leggera?", color: COMMENT_COLOR }], url: "https://github.com/evilmartians/lefthook" },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Danger (GitLab)", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# commenta MR senza bloccare il flusso", color: COMMENT_COLOR }], url: "https://danger.systems" },
-        { tokens: [{ text: "  - ", color: WHITE }, { text: "Vale", color: ORANGE }, { text: "                ", color: WHITE }, { text: "# prose linter per i file .md", color: COMMENT_COLOR }], url: "https://vale.sh" },
+        { tokens: [{ text: "supporto_b", color: CYAN }, { text: ":", color: WHITE }, { text: "  # Governance — protegge l'output del core?", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Lefthook", color: ORANGE }, { text: "            ", color: WHITE }, { text: "# pre-push hooks", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Danger (GitLab)", color: ORANGE }, { text: "     ", color: WHITE }, { text: "# commenta MR automaticamente", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  - ", color: WHITE }, { text: "Vale", color: ORANGE }, { text: "                ", color: WHITE }, { text: "# prose linter per .md", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "  domanda", color: LIGHT_BLUE }, { text: ": ", color: WHITE }, { text: '"senza governance la doc generata degrada? quanto velocemente?"', color: ORANGE }] },
+        { tokens: [] },
+        { tokens: [{ text: "# Manifesto #5: il fine guida, non i mezzi. Ma sperimentare ci piace.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# I tool sono candidati. Nessuno è confermato.", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "#", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "# deliverable:", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "#   pipeline AI-driven, indipendente dallo stack", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "#   + capire se static analysis e governance la rendono migliore", color: COMMENT_COLOR }] },
+        { tokens: [{ text: "#   o se sono overhead che non vale la pena mantenere", color: COMMENT_COLOR }] },
       ],
     },
   },
   {
-    id: "10_obiettivo.md",
+    id: "09_obiettivo.md",
     folder: "config",
     title: "Obiettivo",
     icon: "md",
     content: {
       type: "markdown",
       lines: [
-        { type: "heading1", text: "# L'Obiettivo Finale" },
+        { type: "heading1", text: "# L'Obiettivo" },
         { type: "blank", text: "" },
-        { type: "text", text: "Non stiamo scriptando un progetto specifico." },
-        { type: "bold", text: "**Stiamo definendo un Flusso, astratto dallo stack.**" },
+        { type: "heading2", text: "## Il deliverable:" },
+        { type: "bullet", text: "- Una **pipeline AI-driven** che si integri al di là dello stack" },
+        { type: "bullet", text: "- Un **insieme di pratiche** per mantenerla viva nel tempo" },
+        { type: "bullet", text: "- Una **demo concreta**, condivisibile con il resto dell'agenzia" },
         { type: "blank", text: "" },
-        { type: "heading2", text: "## La pipeline:" },
+        { type: "comment", text: "<!-- Manifesto #6: ci deve essere un output, e non dobbiamo tenercelo per noi. -->" },
+        { type: "comment", text: "<!-- Manifesto #3: quello che iniziamo deve essere concluso in un tempo prestabilito. -->" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Il flusso core:" },
         { type: "blank", text: "" },
         { type: "text", text: "```" },
         { type: "text", text: "Intento umano (MR template)" },
-        { type: "text", text: "    → Agente AI legge diff + intento" },
+        { type: "text", text: "    → Agente AI legge diff + contesto" },
         { type: "text", text: "        → Documentazione aggiornata" },
         { type: "text", text: "            → AGENTS.md / ADR se necessario" },
         { type: "text", text: "```" },
         { type: "blank", text: "" },
-        { type: "text", text: "Che sia Python, TypeScript o Go:" },
-        { type: "bold", text: "**il processo mentale non cambia. È replicabile. È sostenibile.**" },
+        { type: "text", text: "Che sia Python, TypeScript o PHP:" },
+        { type: "bold", text: "**il processo non cambia. È replicabile.**" },
         { type: "blank", text: "" },
         { type: "line", text: "---" },
         { type: "blank", text: "" },
-        { type: "quote", text: "> Il codice deve raccontarsi da solo." },
-        { type: "quote", text: "> Noi dobbiamo pensare all'architettura e alla logica," },
-        { type: "quote", text: "> non rincorrere file obsoleti." },
+        { type: "heading2", text: "## Le domande aperte:" },
+        { type: "bullet", text: "- I parser statici **migliorano** l'input che diamo all'AI?" },
+        { type: "bullet", text: "- La governance **protegge** la qualità o aggiunge solo frizione?" },
+        { type: "bullet", text: "- Senza nessuno dei due, la pipeline AI **regge da sola**?" },
+        { type: "blank", text: "" },
+        { type: "comment", text: "<!-- La pipeline funziona su uno stack che non abbiamo testato? -->" },
+        { type: "comment", text: "<!-- Come misuriamo se sta funzionando? -->" },
+        { type: "comment", text: "<!-- L'obiettivo non è la doc. È non perdere più tempo a cercare quello che sapevamo già. -->" },
       ],
     },
   },
   {
-    id: "11_risorse.md",
+    id: "10_risorse.md",
     folder: "config",
     title: "Risorse",
     icon: "md",
@@ -378,19 +418,19 @@ const slides = [
         { type: "blank", text: "" },
         { type: "heading3", text: "### 📖 Materiale per andare a fondo:" },
         { type: "blank", text: "" },
-        { type: "bullet", text: '- **Nygard (2011)**: "Documenting Architecture Decisions"', url: "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions" },
+        { type: "bullet", text: '- **Nygard (2011)**: "Documenting Architecture Decisions"' },
         { type: "text", text: "  Il blog post che ha reso popolare gli ADR. Perché documentare il 'perché'." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **Write the Docs**: Docs as Code", url: "https://www.writethedocs.org/guide/docs-as-code/" },
+        { type: "bullet", text: "- **Write the Docs**: Docs as Code" },
         { type: "text", text: "  Stessi workflow del team dev applicati alla documentazione. Riferimento principale." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **AWS**: Master Architecture Decision Records", url: "https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/welcome.html" },
+        { type: "bullet", text: "- **AWS**: Master Architecture Decision Records" },
         { type: "text", text: "  Best practices da 200+ ADR su progetti reali. Decision-making efficace." },
         { type: "blank", text: "" },
-        { type: "bullet", text: '- **IBM (2026)**: "AI Code Documentation — Benefits and Top Tips"', url: "https://www.ibm.com/think/topics/ai-code-documentation" },
+        { type: "bullet", text: '- **IBM (2026)**: "AI Code Documentation — Benefits and Top Tips"' },
         { type: "text", text: "  Dati concreti sui limiti reali dell'automazione oggi. Lo stato dell'arte." },
         { type: "blank", text: "" },
-        { type: "bullet", text: "- **Google**: Documentation Best Practices", url: "https://google.github.io/styleguide/docguide/best_practices.html" },
+        { type: "bullet", text: "- **Google**: Documentation Best Practices" },
         { type: "text", text: "  Framework interno: API doc vs commenti inline vs design doc. Cosa documentare e dove." },
       ],
     },
@@ -521,6 +561,26 @@ const workshopQuestions = [
   { id: 2, question: "Quanto cambiamo il codice per l'automazione?" },
   { id: 3, question: "Per chi commentiamo? (Umani vs Parser)" },
   { id: 4, question: "Dove vive la verità? (Repo vs esterno)" },
+  { id: 5, question: "Quante call avete fatto nell'ultimo mese che si potevano evitare con un file aggiornato?" },
+  { id: 6, question: "Quanto minimo è 'minimo intervento'?" },
+  { id: 7, question: "Ci fidiamo di quello che genera?" },
+  { id: 8, question: "Quanto ci costa mantenerlo rispetto a scrivere la doc a mano?" },
+  { id: 9, question: "Stiamo risolvendo il problema o stiamo creando un nuovo debito?" },
+  { id: 10, question: "Quanti token di contesto sprechiamo perché l'agente non sa come lavoriamo?" },
+  { id: 11, question: "Quante ore e salute costa un onboarding oggi su un nostro progetto?" },
+  { id: 12, question: "Quante call servono a un PM per capire cosa può promettere al cliente?" },
+  { id: 13, question: "Dobbiamo cambiare il modo in cui scriviamo codice, o basta cambiare cosa succede dopo?" },
+  { id: 14, question: "Type Hinting rigoroso su tutto: investimento o spreco?" },
+  { id: 15, question: "Quanto tempo in più costa scrivere bene ora vs quanto ne perdiamo dopo?" },
+  { id: 16, question: "Chi decide lo standard, e su quale progetto? È l'occasione per definirlo?" },
+  { id: 17, question: "Ha senso avere un flusso, o stiamo risolvendo un problema che non tutti sentono?" },
+  { id: 18, question: "Per chi commentiamo davvero?" },
+  { id: 19, question: "Chi se ne accorge quando doc e codice divergono?" },
+  { id: 20, question: "Dentro la repo o fuori?" },
+  { id: 21, question: "Se diamo all'AI anche i metadati dei parser statici, genera doc migliore?" },
+  { id: 22, question: "La pipeline AI regge da sola senza gli altri due approcci?" },
+  { id: 23, question: "La pipeline funziona su uno stack che non abbiamo testato?" },
+  { id: 24, question: "Come misuriamo se sta funzionando?" },
 ];
 
 export default function WorkshopPresentation() {
@@ -541,8 +601,26 @@ export default function WorkshopPresentation() {
   const [userAnswer, setUserAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   
-  // Firebase hook for real-time responses
+  // Question creation states
+  const [showAddQuestion, setShowAddQuestion] = useState(false);
+  const [newQuestionText, setNewQuestionText] = useState("");
+  const [questionAuthor, setQuestionAuthor] = useState("");
+  const [addingQuestion, setAddingQuestion] = useState(false);
+  
+  // Firebase hooks
   const { responses, loading, error, addResponse } = useWorkshopResponses(selectedQuestion);
+  const { customQuestions, loading: questionsLoading, addQuestion } = useWorkshopQuestions();
+  
+  // Combine predefined and custom questions
+  const allQuestions = [
+    ...workshopQuestions,
+    ...customQuestions.map(q => ({
+      id: q.id,
+      question: q.question,
+      author: q.author,
+      isCustom: true
+    }))
+  ];
 
   const currentSlide = slides[activeSlide];
   const totalLines = currentSlide.content.lines?.length ?? 0;
@@ -554,7 +632,7 @@ export default function WorkshopPresentation() {
     setSubmitting(true);
     
     try {
-      const question = workshopQuestions.find(q => q.id === selectedQuestion)?.question;
+      const question = allQuestions.find(q => q.id === selectedQuestion)?.question;
       await addResponse(selectedQuestion, question, userName, userAnswer);
       
       // Clear only answer, keep name for convenience
@@ -564,6 +642,30 @@ export default function WorkshopPresentation() {
       alert('Errore nell\'invio della risposta. Riprova.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSubmitQuestion = async (e) => {
+    e.preventDefault();
+    if (!newQuestionText.trim() || !questionAuthor.trim() || addingQuestion) return;
+    
+    setAddingQuestion(true);
+    
+    try {
+      const newQuestionId = await addQuestion(newQuestionText, questionAuthor);
+      
+      // Clear form
+      setNewQuestionText("");
+      setQuestionAuthor("");
+      
+      // Switch to answer mode and select the new question
+      setShowAddQuestion(false);
+      setSelectedQuestion(newQuestionId);
+    } catch (err) {
+      console.error('Failed to add question:', err);
+      alert('Errore nell\'aggiunta della domanda. Riprova.');
+    } finally {
+      setAddingQuestion(false);
     }
   };
 
@@ -931,7 +1033,7 @@ export default function WorkshopPresentation() {
                       <circle cx="10" cy="10" r="8" fill={ACCENT} opacity="0.2" />
                       <path d="M10 6v8M6 10h8" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" />
                     </svg>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>GitHub Copilot</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>Lotrek Copilot</span>
                   </div>
                   <span 
                     style={{ color: TEXT_MUTED, cursor: "pointer", fontSize: 18 }} 
@@ -939,175 +1041,363 @@ export default function WorkshopPresentation() {
                   >×</span>
                 </div>
 
-                {/* Question Selector */}
-                <div style={{ padding: 16, borderBottom: `1px solid ${BORDER_COLOR}` }}>
-                  <label style={{ fontSize: 11, color: TEXT_MUTED, display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                    Seleziona Domanda Workshop
-                  </label>
-                  <select 
-                    value={selectedQuestion} 
-                    onChange={(e) => setSelectedQuestion(Number(e.target.value))}
-                    style={{
-                      width: "100%",
-                      padding: "8px 12px",
-                      background: BG_EDITOR,
-                      border: `1px solid ${BORDER_COLOR}`,
-                      borderRadius: 4,
-                      color: TEXT_PRIMARY,
-                      fontSize: 12,
-                      fontFamily: "inherit",
-                      cursor: "pointer",
-                      outline: "none"
-                    }}
-                  >
-                    {workshopQuestions.map(q => (
-                      <option key={q.id} value={q.id}>{q.question}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Responses List */}
+                {/* Mode Toggle */}
                 <div style={{ 
-                  flex: 1, 
-                  overflowY: "auto", 
-                  padding: 16,
+                  padding: 12,
+                  borderBottom: `1px solid ${BORDER_COLOR}`,
                   display: "flex",
-                  flexDirection: "column",
-                  gap: 12
+                  gap: 8
                 }}>
-                  <div style={{ fontSize: 11, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
-                    Risposte ({responses.length})
-                  </div>
-                  
-                  {loading && (
-                    <div style={{ 
-                      fontSize: 12, 
-                      color: TEXT_MUTED, 
-                      fontStyle: "italic",
-                      textAlign: "center",
-                      padding: "20px 0"
-                    }}>
-                      Caricamento risposte...
-                    </div>
-                  )}
-                  
-                  {error && (
-                    <div style={{ 
-                      fontSize: 12, 
-                      color: "#E06C75", 
-                      background: "#E06C7522",
-                      padding: 12,
-                      borderRadius: 6,
-                      border: "1px solid #E06C7544"
-                    }}>
-                      ⚠️ Firebase non configurato. Le risposte sono salvate solo localmente.
-                    </div>
-                  )}
-                  
-                  {!loading && responses.length > 0 && responses.map(response => (
-                    <div 
-                      key={response.id} 
-                      style={{
-                        background: BG_EDITOR,
-                        border: `1px solid ${BORDER_COLOR}`,
-                        borderRadius: 6,
-                        padding: 12,
-                        animation: "fadeIn 0.3s ease"
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: ACCENT }}>{response.name}</span>
-                        <span style={{ fontSize: 10, color: TEXT_MUTED }}>
-                          {response.timestampISO 
-                            ? new Date(response.timestampISO).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-                            : response.timestamp?.toDate 
-                              ? response.timestamp.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-                              : 'ora'
-                          }
-                        </span>
-                      </div>
-                      <p style={{ fontSize: 12, color: TEXT_PRIMARY, lineHeight: 1.6, margin: 0 }}>
-                        {response.answer}
-                      </p>
-                    </div>
-                  ))}
-                  
-                  {!loading && responses.length === 0 && !error && (
-                    <div style={{ 
-                      fontSize: 12, 
-                      color: TEXT_MUTED, 
-                      fontStyle: "italic",
-                      textAlign: "center",
-                      padding: "20px 0"
-                    }}>
-                      Nessuna risposta ancora. Sii il primo!
-                    </div>
-                  )}
-                </div>
-
-                {/* Answer Form */}
-                <form onSubmit={handleSubmitAnswer} style={{
-                  borderTop: `1px solid ${BORDER_COLOR}`,
-                  padding: 16,
-                  background: BG_TITLEBAR,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10
-                }}>
-                  <input
-                    type="text"
-                    placeholder="Il tuo nome"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "8px 12px",
-                      background: BG_EDITOR,
-                      border: `1px solid ${BORDER_COLOR}`,
-                      borderRadius: 4,
-                      color: TEXT_PRIMARY,
-                      fontSize: 12,
-                      fontFamily: "inherit",
-                      outline: "none"
-                    }}
-                  />
-                  <textarea
-                    placeholder="La tua risposta..."
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    rows={3}
-                    style={{
-                      width: "100%",
-                      padding: "8px 12px",
-                      background: BG_EDITOR,
-                      border: `1px solid ${BORDER_COLOR}`,
-                      borderRadius: 4,
-                      color: TEXT_PRIMARY,
-                      fontSize: 12,
-                      fontFamily: "inherit",
-                      resize: "vertical",
-                      outline: "none"
-                    }}
-                  />
                   <button
-                    type="submit"
-                    disabled={!userName.trim() || !userAnswer.trim() || submitting}
+                    onClick={() => setShowAddQuestion(false)}
                     style={{
-                      padding: "8px 16px",
-                      background: userName.trim() && userAnswer.trim() && !submitting ? ACCENT : "#555",
-                      color: "#fff",
-                      border: "none",
+                      flex: 1,
+                      padding: "6px 12px",
+                      background: !showAddQuestion ? ACCENT : BG_EDITOR,
+                      color: !showAddQuestion ? "#fff" : TEXT_PRIMARY,
+                      border: `1px solid ${BORDER_COLOR}`,
                       borderRadius: 4,
                       fontSize: 12,
                       fontWeight: 600,
-                      cursor: userName.trim() && userAnswer.trim() && !submitting ? "pointer" : "not-allowed",
-                      opacity: userName.trim() && userAnswer.trim() && !submitting ? 1 : 0.5,
-                      transition: "all 0.2s ease"
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontFamily: "inherit"
                     }}
                   >
-                    {submitting ? "Invio..." : "Invia Risposta"}
+                    💬 Rispondi
                   </button>
-                </form>
+                  <button
+                    onClick={() => setShowAddQuestion(true)}
+                    style={{
+                      flex: 1,
+                      padding: "6px 12px",
+                      background: showAddQuestion ? ACCENT : BG_EDITOR,
+                      color: showAddQuestion ? "#fff" : TEXT_PRIMARY,
+                      border: `1px solid ${BORDER_COLOR}`,
+                      borderRadius: 4,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontFamily: "inherit"
+                    }}
+                  >
+                    ➕ Aggiungi Domanda
+                  </button>
+                </div>
+
+                {!showAddQuestion ? (
+                  <>
+                    {/* Question Selector */}
+                    <div style={{ padding: 16, borderBottom: `1px solid ${BORDER_COLOR}` }}>
+                      <label style={{ fontSize: 11, color: TEXT_MUTED, display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        Seleziona Domanda Workshop
+                      </label>
+                      <select 
+                        value={selectedQuestion} 
+                        onChange={(e) => setSelectedQuestion(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: BG_EDITOR,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          borderRadius: 4,
+                          color: TEXT_PRIMARY,
+                          fontSize: 12,
+                          fontFamily: "inherit",
+                          cursor: "pointer",
+                          outline: "none"
+                        }}
+                      >
+                        {allQuestions.map(q => (
+                          <option key={q.id} value={q.id}>
+                            {q.isCustom ? `🆕 ${q.question}` : q.question}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedQuestion && allQuestions.find(q => q.id === selectedQuestion)?.author && (
+                        <div style={{ fontSize: 10, color: TEXT_MUTED, marginTop: 6, fontStyle: "italic" }}>
+                          Domanda by {allQuestions.find(q => q.id === selectedQuestion)?.author}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Responses List */}
+                    <div style={{ 
+                      flex: 1, 
+                      overflowY: "auto", 
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12
+                    }}>
+                      <div style={{ fontSize: 11, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
+                        Risposte ({responses.length})
+                      </div>
+                      
+                      {loading && (
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: TEXT_MUTED, 
+                          fontStyle: "italic",
+                          textAlign: "center",
+                          padding: "20px 0"
+                        }}>
+                          Caricamento risposte...
+                        </div>
+                      )}
+                      
+                      {error && (
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: "#E06C75", 
+                          background: "#E06C7522",
+                          padding: 12,
+                          borderRadius: 6,
+                          border: "1px solid #E06C7544"
+                        }}>
+                          ⚠️ Firebase non configurato. Le risposte sono salvate solo localmente.
+                        </div>
+                      )}
+                      
+                      {!loading && responses.length > 0 && responses.map(response => (
+                        <div 
+                          key={response.id} 
+                          style={{
+                            background: BG_EDITOR,
+                            border: `1px solid ${BORDER_COLOR}`,
+                            borderRadius: 6,
+                            padding: 12,
+                            animation: "fadeIn 0.3s ease"
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: ACCENT }}>{response.name}</span>
+                            <span style={{ fontSize: 10, color: TEXT_MUTED }}>
+                              {response.timestampISO 
+                                ? new Date(response.timestampISO).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                                : response.timestamp?.toDate 
+                                  ? response.timestamp.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                                  : 'ora'
+                              }
+                            </span>
+                          </div>
+                          <p style={{ fontSize: 12, color: TEXT_PRIMARY, lineHeight: 1.6, margin: 0 }}>
+                            {response.answer}
+                          </p>
+                        </div>
+                      ))}
+                      
+                      {!loading && responses.length === 0 && !error && (
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: TEXT_MUTED, 
+                          fontStyle: "italic",
+                          textAlign: "center",
+                          padding: "20px 0"
+                        }}>
+                          Nessuna risposta ancora. Sii il primo!
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Answer Form */}
+                    <form onSubmit={handleSubmitAnswer} style={{
+                      borderTop: `1px solid ${BORDER_COLOR}`,
+                      padding: 16,
+                      background: BG_TITLEBAR,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="Il tuo nome"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: BG_EDITOR,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          borderRadius: 4,
+                          color: TEXT_PRIMARY,
+                          fontSize: 12,
+                          fontFamily: "inherit",
+                          outline: "none"
+                        }}
+                      />
+                      <textarea
+                        placeholder="La tua risposta..."
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        rows={3}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: BG_EDITOR,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          borderRadius: 4,
+                          color: TEXT_PRIMARY,
+                          fontSize: 12,
+                          fontFamily: "inherit",
+                          resize: "vertical",
+                          outline: "none"
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!userName.trim() || !userAnswer.trim() || submitting}
+                        style={{
+                          padding: "8px 16px",
+                          background: userName.trim() && userAnswer.trim() && !submitting ? ACCENT : "#555",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: userName.trim() && userAnswer.trim() && !submitting ? "pointer" : "not-allowed",
+                          opacity: userName.trim() && userAnswer.trim() && !submitting ? 1 : 0.5,
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {submitting ? "Invio..." : "Invia Risposta"}
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    {/* Add Question Form */}
+                    <div style={{ 
+                      flex: 1, 
+                      overflowY: "auto", 
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12
+                    }}>
+                      <div style={{ 
+                        fontSize: 13, 
+                        color: TEXT_PRIMARY, 
+                        lineHeight: 1.6,
+                        background: BG_EDITOR,
+                        padding: 16,
+                        borderRadius: 6,
+                        border: `1px solid ${BORDER_COLOR}`
+                      }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: ACCENT }}>
+                          ➕ Aggiungi una Nuova Domanda
+                        </div>
+                        <p style={{ fontSize: 12, color: TEXT_MUTED, margin: 0 }}>
+                          Proponi una nuova domanda per il workshop. Sarà visibile a tutti i partecipanti in tempo reale.
+                        </p>
+                      </div>
+
+                      {questionsLoading && (
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: TEXT_MUTED, 
+                          fontStyle: "italic",
+                          textAlign: "center",
+                          padding: "20px 0"
+                        }}>
+                          Caricamento domande...
+                        </div>
+                      )}
+
+                      {customQuestions.length > 0 && (
+                        <>
+                          <div style={{ fontSize: 11, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 0.5, marginTop: 12 }}>
+                            Domande Recenti ({customQuestions.length})
+                          </div>
+                          {customQuestions.slice(-5).reverse().map(q => (
+                            <div 
+                              key={q.id}
+                              style={{
+                                background: BG_EDITOR,
+                                border: `1px solid ${BORDER_COLOR}`,
+                                borderRadius: 6,
+                                padding: 12,
+                                animation: "fadeIn 0.3s ease"
+                              }}
+                            >
+                              <div style={{ fontSize: 12, color: TEXT_PRIMARY, marginBottom: 4 }}>
+                                {q.question}
+                              </div>
+                              <div style={{ fontSize: 10, color: TEXT_MUTED, fontStyle: "italic" }}>
+                                by {q.author}
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+
+                    {/* New Question Form */}
+                    <form onSubmit={handleSubmitQuestion} style={{
+                      borderTop: `1px solid ${BORDER_COLOR}`,
+                      padding: 16,
+                      background: BG_TITLEBAR,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="Il tuo nome"
+                        value={questionAuthor}
+                        onChange={(e) => setQuestionAuthor(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: BG_EDITOR,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          borderRadius: 4,
+                          color: TEXT_PRIMARY,
+                          fontSize: 12,
+                          fontFamily: "inherit",
+                          outline: "none"
+                        }}
+                      />
+                      <textarea
+                        placeholder="La tua domanda..."
+                        value={newQuestionText}
+                        onChange={(e) => setNewQuestionText(e.target.value)}
+                        rows={3}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: BG_EDITOR,
+                          border: `1px solid ${BORDER_COLOR}`,
+                          borderRadius: 4,
+                          color: TEXT_PRIMARY,
+                          fontSize: 12,
+                          fontFamily: "inherit",
+                          resize: "vertical",
+                          outline: "none"
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!questionAuthor.trim() || !newQuestionText.trim() || addingQuestion}
+                        style={{
+                          padding: "8px 16px",
+                          background: questionAuthor.trim() && newQuestionText.trim() && !addingQuestion ? GREEN : "#555",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: questionAuthor.trim() && newQuestionText.trim() && !addingQuestion ? "pointer" : "not-allowed",
+                          opacity: questionAuthor.trim() && newQuestionText.trim() && !addingQuestion ? 1 : 0.5,
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {addingQuestion ? "Invio..." : "➕ Aggiungi Domanda"}
+                      </button>
+                    </form>
+                  </>
+                )}
               </div>
             )}
           </div>
