@@ -632,7 +632,7 @@ export default function WorkshopPresentation() {
     setSubmitting(true);
     
     try {
-      const question = allQuestions.find(q => q.id === selectedQuestion)?.question;
+      const question = allQuestions.find(q => q.id == selectedQuestion)?.question;
       await addResponse(selectedQuestion, question, userName, userAnswer);
       
       // Clear only answer, keep name for convenience
@@ -1095,7 +1095,12 @@ export default function WorkshopPresentation() {
                       </label>
                       <select 
                         value={selectedQuestion} 
-                        onChange={(e) => setSelectedQuestion(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          // Convert to number if it's a numeric ID, otherwise keep as string
+                          const questionId = isNaN(val) ? val : Number(val);
+                          setSelectedQuestion(questionId);
+                        }}
                         style={{
                           width: "100%",
                           padding: "8px 12px",
@@ -1115,9 +1120,9 @@ export default function WorkshopPresentation() {
                           </option>
                         ))}
                       </select>
-                      {selectedQuestion && allQuestions.find(q => q.id === selectedQuestion)?.author && (
+                      {selectedQuestion && allQuestions.find(q => q.id == selectedQuestion)?.author && (
                         <div style={{ fontSize: 10, color: TEXT_MUTED, marginTop: 6, fontStyle: "italic" }}>
-                          Domanda by {allQuestions.find(q => q.id === selectedQuestion)?.author}
+                          Domanda by {allQuestions.find(q => q.id == selectedQuestion)?.author}
                         </div>
                       )}
                     </div>
