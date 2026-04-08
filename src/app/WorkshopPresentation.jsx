@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWorkshopResponses } from "../lib/useWorkshopResponses";
 import { useWorkshopQuestions } from "../lib/useWorkshopQuestions";
+import { docsResultContent } from "./docsResultContent";
 
 const ACCENT = "#007ACC";
 const BG_DARK = "#1E1E1E";
@@ -27,6 +28,11 @@ const LIGHT_BLUE = "#9CDCFE";
 const WHITE = "#D4D4D4";
 const COMMENT_COLOR = "#6A9955";
 const PINK = "#C586C0";
+
+const rawFileToCodeLines = (content) =>
+  content.split("\n").map((text) => ({
+    tokens: [{ text, color: TEXT_PRIMARY }],
+  }));
 
 const slides = [
   {
@@ -435,6 +441,100 @@ const slides = [
       ],
     },
   },
+  {
+    id: "docs-result/pipeline.md",
+    folder: "risultato",
+    title: "Pipeline MD",
+    icon: "md",
+    content: {
+      type: "code",
+      language: "markdown",
+      lines: rawFileToCodeLines(docsResultContent["pipeline.md"]),
+    },
+  },
+  {
+    id: "docs-result/.gitlab-ci.yml",
+    folder: "risultato",
+    title: "GitLab CI",
+    icon: "yml",
+    content: {
+      type: "code",
+      language: "yaml",
+      lines: rawFileToCodeLines(docsResultContent[".gitlab-ci.yml"]),
+    },
+  },
+  {
+    id: "docs-result/scripts/ai_docs_agent.py",
+    folder: "risultato",
+    title: "Agent Script",
+    icon: "py",
+    content: {
+      type: "code",
+      language: "python",
+      lines: rawFileToCodeLines(docsResultContent["scripts/ai_docs_agent.py"]),
+    },
+  },
+  {
+    id: "docs-result/.aider.instructions.md",
+    folder: "risultato",
+    title: "Regole Aider",
+    icon: "md",
+    content: {
+      type: "code",
+      language: "markdown",
+      lines: rawFileToCodeLines(docsResultContent[".aider.instructions.md"]),
+    },
+  },
+  {
+    id: "docs-result/.aider.conf.yml",
+    folder: "risultato",
+    title: "Config Aider",
+    icon: "yml",
+    content: {
+      type: "code",
+      language: "yaml",
+      lines: rawFileToCodeLines(docsResultContent[".aider.conf.yml"]),
+    },
+  },
+  {
+    id: "docs-result/DOC_GUIDE.md",
+    folder: "risultato",
+    title: "DOC GUIDE",
+    icon: "md",
+    content: {
+      type: "code",
+      language: "markdown",
+      lines: rawFileToCodeLines(docsResultContent["DOC_GUIDE.md"]),
+    },
+  },
+  {
+    id: "11_future_questions.md",
+    folder: "risultato",
+    title: "Domande Finali",
+    icon: "md",
+    content: {
+      type: "markdown",
+      lines: [
+        { type: "heading1", text: "# Chiusura Workshop: nuove domande" },
+        { type: "blank", text: "" },
+        { type: "text", text: "Il workshop e partito da domande. Si chiude con domande ancora piu utili." },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Domande guida per venerdi prossimo" },
+        { type: "bullet", text: "- Possiamo affidarci a una AI per la documentazione automatica se non siamo certi dell output?" },
+        { type: "bullet", text: "- Aider e davvero lo strumento giusto nel medio periodo?" },
+        { type: "bullet", text: "- Se l AI decide di creare file fuori perimetro, come manteniamo il controllo?" },
+        { type: "bullet", text: "- Per chi documentiamo davvero: AI, colleghi, PM, cliente?" },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Dove siamo arrivati" },
+        { type: "text", text: "Pipeline funzionante su repo di test con casi FE e BE diversi." },
+        { type: "text", text: "Resta centrale la revisione umana della qualita documentale." },
+        { type: "blank", text: "" },
+        { type: "heading2", text: "## Repo di riferimento" },
+        { type: "text", text: "ai-autodocs-astro-django" },
+        { type: "comment", text: "<!-- Se avete altre domande o osservazioni, raccogliamole qui e portiamole in plenaria venerdi prossimo. -->" },
+      ],
+    },
+  },
 ];
 
 const fileIcons = {
@@ -546,14 +646,36 @@ function renderCodeTokens(tokens) {
 }
 
 const terminalMessages = [
-  { type: "cmd", text: "$ git push origin feat/doc-pipeline" },
-  { type: "out", text: "⠋ Running Lefthook pre-push hooks..." },
-  { type: "out", text: "✓ pydoc-markdown: 47 docstrings extracted" },
-  { type: "out", text: "✓ typedoc: 23 interfaces documented" },
-  { type: "out", text: "✓ vale: prose linting passed (0 errors)" },
-  { type: "warn", text: "⚠ danger: MR description campo 'perché' troppo generico" },
-  { type: "out", text: "✓ AI agent: AGENTS.md aggiornato" },
-  { type: "success", text: "✓ Pipeline completata. Documentazione sincronizzata." },
+  { type: "cmd", text: "Running with gitlab-runner 18.x on shared Linux runner" },
+  { type: "out", text: "[prepare] docker+machine executor -> image python:3.12-slim" },
+  { type: "out", text: "[source] checkout MR branch feature/add-breadcrumb-component" },
+  { type: "cmd", text: "$ apt-get update -qq && apt-get install -y -qq git" },
+  { type: "out", text: "[deps] git installed in CI container" },
+  { type: "cmd", text: "$ pip3 install --quiet aider-chat python-gitlab" },
+  { type: "warn", text: "[notice] pip running as root inside CI container" },
+  { type: "out", text: "[git] configured AI Docs Bot identity and authenticated origin" },
+  { type: "cmd", text: "$ python scripts/ai_docs_agent.py" },
+  { type: "out", text: "INFO  MR !2 — Aggiunta componente CommonsBreadcrumb" },
+  { type: "out", text: "INFO  STEP 1 -> 3 file significativi trovati" },
+  { type: "out", text: "INFO  STEP 2 -> DOC_GUIDE.md e .aider.instructions.md trovati" },
+  { type: "out", text: "INFO  STEP 3 -> READ flags: 5 | EDIT flags: 5" },
+  { type: "out", text: "INFO  STEP 5 -> invocazione Aider sul diff della MR" },
+  { type: "out", text: "Aider v0.86.x | model qwen3.6-plus-preview | repo-map 2048 tokens" },
+  { type: "out", text: "--------------" },
+  { type: "cmd", text: "► THINKING" },
+  { type: "out", text: "Analizzo la MR: nuovo componente CommonsBreadcrumb + impatto su pagine Astro" },
+  { type: "out", text: "Controllo DOC_GUIDE.md: componente con logica rilevante -> doc dedicata in docs/components/" },
+  { type: "out", text: "Estraggo props e responsabilita: homeLabel, separator, labelMap, SEO JSON-LD, accessibilita" },
+  { type: "out", text: "Decido di creare CommonsBreadcrumb.md e aggiornare README.md con il nuovo link" },
+  { type: "cmd", text: "► ANSWER" },
+  { type: "out", text: "README.md -> aggiunta voce 'Componente CommonsBreadcrumb' nella sezione Documentazione" },
+  { type: "out", text: "docs/components/CommonsBreadcrumb.md -> creato file con props, esempio d'uso e note" },
+  { type: "out", text: "[doc] creato docs/components/CommonsBreadcrumb.md" },
+  { type: "out", text: "[doc] aggiornato README.md con link al nuovo componente" },
+  { type: "out", text: "INFO  Aider exit code: 0" },
+  { type: "cmd", text: "$ git commit -m \"docs: auto-update per MR !2 [skip ci]\"" },
+  { type: "success", text: "[push] documentazione aggiornata e pushata sul branch MR" },
+  { type: "success", text: "Job succeeded | artifact: logs/ai_docs_debug.log" },
 ];
 
 const workshopQuestions = [
@@ -585,7 +707,7 @@ const workshopQuestions = [
 
 export default function WorkshopPresentation() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [openFolders, setOpenFolders] = useState({ workshop: true, domande: true, problemi: true, config: true });
+  const [openFolders, setOpenFolders] = useState({ workshop: true, domande: true, problemi: true, config: true, risultato: true });
   const [visibleLines, setVisibleLines] = useState(0);
   const [terminalVisible, setTerminalVisible] = useState(false);
   const [terminalLines, setTerminalLines] = useState(0);
@@ -739,7 +861,7 @@ export default function WorkshopPresentation() {
     folders[s.folder].push({ ...s, index: i });
   });
 
-  const folderOrder = ["workshop", "domande", "problemi", "config"];
+  const folderOrder = ["workshop", "domande", "problemi", "config", "risultato"];
 
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex", flexDirection: "column", background: BG_DARK, fontFamily: "'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace", color: TEXT_PRIMARY, overflow: "hidden", fontSize: "13px", userSelect: "none" }} tabIndex={0}>

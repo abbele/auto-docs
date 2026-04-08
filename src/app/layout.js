@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+      <body style={{ margin: 0, padding: 0, overflowX: 'hidden', overflowY: 'auto' }}>
         {children}
       </body>
     </html>

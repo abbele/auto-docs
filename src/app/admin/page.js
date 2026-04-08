@@ -12,24 +12,19 @@ const workshopQuestions = [
 
 export default function AdminPage() {
   const { allResponses, loading } = useAllResponses();
-  const { customQuestions, loading: questionsLoading } = useWorkshopQuestions();
+  const { allQuestions: dbQuestions, loading: questionsLoading } = useWorkshopQuestions();
   const [selectedQuestionFilter, setSelectedQuestionFilter] = useState("all");
   const [showTab, setShowTab] = useState("responses"); // "responses" or "questions"
 
-  // Combine predefined and custom questions
-  const allQuestions = [
-    ...workshopQuestions,
-    ...customQuestions.map(q => ({
-      id: q.id,
-      question: q.question,
-      author: q.author,
-      isCustom: true
-    }))
-  ];
+  // Questions from DB can include predefined already synced + custom user questions
+  const customQuestions = dbQuestions.filter((q) => q.isCustom);
+  const existingIds = new Set(dbQuestions.map((q) => String(q.id)));
+  const predefinedNotInDb = workshopQuestions.filter((q) => !existingIds.has(String(q.id)));
+  const allQuestions = [...predefinedNotInDb, ...dbQuestions];
 
   const filteredResponses = selectedQuestionFilter === "all" 
     ? allResponses 
-    : allResponses.filter(r => r.questionId === Number(selectedQuestionFilter));
+    : allResponses.filter(r => String(r.questionId) === String(selectedQuestionFilter));
 
   const exportAsJSON = () => {
     const dataStr = JSON.stringify(filteredResponses, null, 2);
@@ -66,7 +61,7 @@ export default function AdminPage() {
     allQuestions.forEach(q => {
       stats[q.id] = {
         question: q.question,
-        count: allResponses.filter(r => r.questionId === q.id).length,
+        count: allResponses.filter(r => String(r.questionId) === String(q.id)).length,
         isCustom: q.isCustom || false
       };
     });
@@ -208,7 +203,7 @@ export default function AdminPage() {
                   }}
                 >
                   <option value="all">Tutte ({allResponses.length})</option>
-                  {workshopQuestions.map(q => (
+                  {allQuestions.map(q => (
                     <option key={q.id} value={q.id}>
                       {q.question} ({stats[q.id]?.count || 0})
                     </option>
