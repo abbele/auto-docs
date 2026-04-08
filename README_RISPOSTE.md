@@ -26,8 +26,14 @@ Partecipante 3 → Risponde alla nuova domanda
 
 **Due collezioni Firebase:**
 
-- `workshop-responses` - Tutte le risposte
-- `workshop-questions` - Domande custom proposte dai partecipanti
+- `workshop-responses` - Tutte le risposte dei partecipanti
+- `workshop-questions` - Tutte le domande (predefinite + custom)
+
+**Come funzionano le domande:**
+
+1. **Domande predefinite (24)** - Esistono nel codice ma vengono salvate in Firebase **solo quando qualcuno risponde per la prima volta**
+2. **Domande custom** - Create dai partecipanti tramite il pannello "Aggiungi Domanda", salvate immediatamente in Firebase
+3. **Sincronizzazione automatica** - Il dropdown mostra sempre le domande predefinite (non ancora salvate) + tutte le domande da Firebase
 
 ## 🚀 Quick Start
 
@@ -82,15 +88,17 @@ Firebase Console → Firestore Database → Collection: workshop-responses
 
 ```javascript
 import { useAllResponses } from "./lib/useWorkshopResponses";
+import { useWorkshopQuestions } from "./lib/useWorkshopQuestions";
 
 function MyComponent() {
   const { allResponses, loading } = useAllResponses();
+  const { allQuestions } = useWorkshopQuestions();
 
   // allResponses contiene:
   // [
   //   {
   //     id: "abc123",
-  //     questionId: 1,
+  //     questionId: "5",  // Sempre stringa
   //     question: "Per chi documentiamo?",
   //     name: "Mario Rossi",
   //     answer: "Per gli agenti AI principalmente...",
@@ -98,6 +106,26 @@ function MyComponent() {
   //     timestampISO: "2026-02-26T10:30:00.000Z"
   //   },
   //   ...
+  // ]
+
+  // allQuestions contiene:
+  // [
+  //   {
+  //     id: 5,  // Numero per predefinite, stringa per custom
+  //     question: "Per chi documentiamo?",
+  //     author: "Workshop",
+  //     isPredefined: true,
+  //     isCustom: false,
+  //     createdAt: Timestamp
+  //   },
+  //   {
+  //     id: "xyz789",
+  //     question: "Come gestiamo...?",
+  //     author: "Luigi Bianchi",
+  //     isPredefined: false,
+  //     isCustom: true,
+  //     createdAt: Timestamp
+  //   }
   // ]
 }
 ```

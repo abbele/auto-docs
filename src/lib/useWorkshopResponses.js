@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { 
   collection, 
   addDoc, 
+  doc,
+  getDoc,
+  setDoc,
   query, 
   orderBy, 
   onSnapshot,
   serverTimestamp,
+  Timestamp,
   limit 
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -61,9 +65,27 @@ export function useWorkshopResponses(questionId) {
     }
 
     try {
+      // Se la domanda è predefinita (ID numerico), assicuriamoci che esista nel DB
+      if (typeof questionId === 'number') {
+        const questionDocRef = doc(db, 'workshop-questions', String(questionId));
+        const questionDoc = await getDoc(questionDocRef);
+        
+        // Se non esiste, creiamola
+        if (!questionDoc.exists()) {
+          await setDoc(questionDocRef, {
+            question: question,
+            author: 'Workshop',
+            createdAt: Timestamp.now(),
+            timestamp: serverTimestamp(),
+            isPredefined: true
+          });
+        }
+      }
+      
+      // Salva la risposta
       const responsesRef = collection(db, 'workshop-responses');
       await addDoc(responsesRef, {
-        questionId,
+        questionId: String(questionId), // Converti sempre a stringa per consistenza
         question,
         name: name.trim(),
         answer: answer.trim(),

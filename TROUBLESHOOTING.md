@@ -28,6 +28,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.resource.data.name is string
                     && request.resource.data.answer is string
+                    && request.resource.data.questionId is string
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 50
                     && request.resource.data.answer.size() > 0
@@ -43,7 +44,8 @@ service cloud.firestore {
                     && request.resource.data.question.size() <= 500
                     && request.resource.data.author.size() > 0
                     && request.resource.data.author.size() <= 50
-                    && request.resource.data.createdAt is timestamp;
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.isPredefined is bool;
       allow update, delete: if false;
     }
   }
@@ -70,6 +72,50 @@ Ricarica l'app. Dovresti vedere:
 - ✅ Il pannello Copilot si carica senza errori
 - ✅ Puoi aggiungere domande
 - ✅ Le domande appaiono in tempo reale
+
+---
+
+## FAQ: Come Funzionano le Domande
+
+### Perché non vedo le 24 domande predefinite in Firestore?
+
+**È normale!** Le domande predefinite vengono salvate in Firebase **solo quando qualcuno risponde per la prima volta**.
+
+**Esempio:**
+
+```
+1. Apri l'app → vedi tutte le 24 domande nel dropdown
+2. Controlli Firestore → collection "workshop-questions" è vuota
+3. Qualcuno risponde alla domanda #7
+4. Il sistema crea automaticamente la domanda #7 in Firestore
+5. Ora la domanda #7 esiste in Firestore con isPredefined: true
+```
+
+**Vantaggi:**
+
+- Database più pulito (solo domande con risposte reali)
+- Nessun setup manuale richiesto
+- Salvi spazio e query
+
+### Perché alcune domande hanno ID numerico e altre alfanumerico?
+
+- **ID numerico (es. "5")** = Domanda predefinita salvata quando qualcuno ha risposto
+- **ID alfanumerico (es. "abc123")** = Domanda custom aggiunta da un partecipante
+
+Internamente, tutti gli ID sono convertiti a stringa per consistenza.
+
+### Come distinguo domande predefinite da custom?
+
+Nel database Firebase, controlla il campo `isPredefined`:
+
+```javascript
+{
+  isPredefined: true; // Domanda dalle 24 predefinite
+  isPredefined: false; // Domanda custom del partecipante
+}
+```
+
+Nella UI, le domande custom hanno l'emoji 🆕 nel dropdown.
 
 ---
 

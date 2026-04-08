@@ -34,11 +34,11 @@ Nel tab "Rules" di Firestore, incolla questo:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Responses collection
     match /workshop-responses/{document=**} {
       allow read: if true;
       allow create: if request.resource.data.name is string
                     && request.resource.data.answer is string
+                    && request.resource.data.questionId is string
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 50
                     && request.resource.data.answer.size() > 0
@@ -46,7 +46,6 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Questions collection
     match /workshop-questions/{document=**} {
       allow read: if true;
       allow create: if request.resource.data.question is string
@@ -55,7 +54,8 @@ service cloud.firestore {
                     && request.resource.data.question.size() <= 500
                     && request.resource.data.author.size() > 0
                     && request.resource.data.author.size() <= 50
-                    && request.resource.data.createdAt is timestamp;
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.isPredefined is bool;
       allow update, delete: if false;
     }
   }
@@ -97,7 +97,81 @@ npm run dev
 
 Vai su `http://localhost:3000` e prova a inviare una risposta!
 
-## 📊 Accedere alle risposte
+## � Come Funzionano le Domande
+
+Il sistema gestisce due tipi di domande in modo intelligente:
+
+### 1. Domande Predefinite (24 domande)
+
+- Esistono nel codice come array JavaScript
+- **NON sono salvate in Firebase all'inizio**
+- Vengono salvate automaticamente in Firebase **alla prima risposta**
+- Hanno ID numerici (1, 2, 3...) e campo `isPredefined: true`
+- Risparmiano spazio nel database (solo le domande usate vengono salvate)
+
+### 2. Domande Custom (aggiunte dai partecipanti)
+
+- Create tramite il pannello "Aggiungi Domanda"
+- Salvate immediatamente in Firebase
+- Hanno ID alfanumerici (Firebase auto-generated) e campo `isPredefined: false`
+- Visibili a tutti in tempo reale
+
+### Come funziona il salvataggio lazy
+
+```
+1. Partecipante seleziona domanda #5 (predefinita)
+2. Scrive la risposta e invia
+3. Il sistema controlla: esiste la domanda #5 in Firebase?
+   → NO → crea documento con ID "5" in workshop-questions
+   → SÌ → salta questo step
+4. Salva la risposta in workshop-responses con questionId: "5"
+```
+
+**Vantaggi:**
+- Database più pulito (solo domande con risposte)
+- Nessun setup iniziale richiesto
+- Caricamento più veloce
+- Facile da estendere
+### Struttura delle Collezioni Firebase
+
+**Collection: `workshop-questions`**
+
+```javascript
+{
+  // Documento con ID "5" (domanda predefinita)
+  "5": {
+    question: "Quante call avete fatto nell'ultimo mese...",
+    author: "Workshop",
+    createdAt: Timestamp,
+    timestamp: ServerTimestamp,
+    isPredefined: true
+  },
+
+  // Documento con ID auto-generato (domanda custom)
+  "abc123xyz": {
+    question: "Come gestiamo la documentazione in AI Agent?",
+    author: "Mario Rossi",
+    createdAt: Timestamp,
+    timestamp: ServerTimestamp,
+    isPredefined: false
+  }
+}
+```
+
+**Collection: `workshop-responses`**
+
+```javascript
+{
+  "response123": {
+    questionId: "5",  // Sempre stringa, anche per ID numerici
+    question: "Quante call avete fatto...",  // Duplicato per velocità
+    name: "Luigi Bianchi",
+    answer: "Troppe! Almeno 5 a settimana...",
+    timestamp: ServerTimestamp
+  }
+}
+```
+## �📊 Accedere alle risposte
 
 ### Durante il workshop (Console Firebase)
 

@@ -11,7 +11,7 @@ import {
 import { db } from './firebase';
 
 export function useWorkshopQuestions() {
-  const [customQuestions, setCustomQuestions] = useState([]);
+  const [allQuestions, setAllQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -28,11 +28,15 @@ export function useWorkshopQuestions() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const docs = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setCustomQuestions(docs);
+        const docs = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: isNaN(doc.id) ? doc.id : Number(doc.id), // Converti ID numerici a numero
+            ...data,
+            isCustom: !data.isPredefined // Segna come custom se non è predefinita
+          };
+        });
+        setAllQuestions(docs);
         setLoading(false);
       },
       (err) => {
@@ -58,7 +62,8 @@ export function useWorkshopQuestions() {
         question: questionText.trim(),
         author: author.trim(),
         createdAt: now,
-        timestamp: serverTimestamp() // For server-side tracking
+        timestamp: serverTimestamp(),
+        isPredefined: false
       });
       
       // Return the generated ID to use it immediately
@@ -69,5 +74,5 @@ export function useWorkshopQuestions() {
     }
   };
 
-  return { customQuestions, loading, error, addQuestion };
+  return { allQuestions, loading, error, addQuestion };
 }

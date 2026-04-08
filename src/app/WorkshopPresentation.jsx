@@ -609,18 +609,17 @@ export default function WorkshopPresentation() {
   
   // Firebase hooks
   const { responses, loading, error, addResponse } = useWorkshopResponses(selectedQuestion);
-  const { customQuestions, loading: questionsLoading, addQuestion } = useWorkshopQuestions();
+  const { allQuestions: dbQuestions, loading: questionsLoading, addQuestion } = useWorkshopQuestions();
   
-  // Combine predefined and custom questions
-  const allQuestions = [
-    ...workshopQuestions,
-    ...customQuestions.map(q => ({
-      id: q.id,
-      question: q.question,
-      author: q.author,
-      isCustom: true
-    }))
-  ];
+  // Combine predefined and DB questions
+  // Predefined questions not yet in DB + all DB questions
+  const existingIds = new Set(dbQuestions.map(q => q.id));
+  const predefinedNotInDb = workshopQuestions.filter(q => !existingIds.has(q.id));
+  
+  const allQuestions = [...predefinedNotInDb, ...dbQuestions];
+  
+  // Custom questions = only those added by users
+  const customQuestions = dbQuestions.filter(q => q.isCustom);
 
   const currentSlide = slides[activeSlide];
   const totalLines = currentSlide.content.lines?.length ?? 0;
